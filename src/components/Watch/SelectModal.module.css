@@ -1,0 +1,8 @@
+.modalButtonList {
+  display: flex;
+  gap: 12px;
+  flex-direction: column;
+  flex-wrap: wrap;
+  height: 128px;
+  padding: 12px 0;
+}

@@ -1,0 +1,66 @@
+.container {
+  color: #333;
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar {
+  align-self: center;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.numberArea {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+}
+
+.number {
+  margin-top: 12px;
+}
+
+.buttonArea {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 24px;
+  width: 100%;
+}
+
+.buttonContainer {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.select {
+  margin-bottom: 12px;
+}
+
+.buttonText {
+  color: #333;
+  margin-top: 12px;
+}
+
+.lockButton {
+  margin-top: 12px;
+}
+
+.optionListContainer {
+  height: calc(36px * 2.5);
+  margin-top: 12px;
+  overflow: auto;
+  width: 100%;
+}
+
+.optionList {
+  display: flex;
+  flex-direction: column;
+}
+
+.optionItem {
+  align-items: center;
+  display: flex;
+  height: 36px;
+  justify-content: center;
+}

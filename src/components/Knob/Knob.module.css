@@ -1,0 +1,25 @@
+.button {
+  background-color: #e1e1e1;
+  border-radius: 50%;
+  border: none;
+  cursor: grab;
+  height: 100px;
+  position: relative;
+  /* https://github.com/jquery-archive/PEP/issues/346#issuecomment-402151419 */
+  touch-action: none;
+  width: 100px;
+}
+
+.buttonMoving {
+  transition: none;
+}
+
+.buttonDot {
+  background-color: #aaa;
+  border-radius: 50%;
+  position: absolute;
+  top: 8%;
+  left: 42%;
+  height: 8%;
+  width: 8%;
+}

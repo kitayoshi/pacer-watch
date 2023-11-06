@@ -1,0 +1,22 @@
+.button {
+  align-items: center;
+  background-color: #e1e1e1;
+  border: none;
+  border-radius: 50%;
+  color: #aaa;
+  display: flex;
+  height: 30px;
+  justify-content: center;
+  transition: 0.3s all;
+  width: 30px;
+}
+
+.locked {
+  color: #333;
+}
+
+.icon {
+  fill: currentColor;
+  height: 20px;
+  width: 20px;
+}

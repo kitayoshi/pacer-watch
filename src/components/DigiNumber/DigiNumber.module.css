@@ -1,0 +1,22 @@
+.root {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+}
+
+.numberText {
+  color: #333;
+  font-size: 48px;
+}
+
+.label {
+  color: #999;
+  font-size: 12px;
+  margin-bottom: -16px;
+}
+
+.subNumberText {
+  color: #ddd;
+  font-size: 20px;
+  margin-top: -16px;
+}

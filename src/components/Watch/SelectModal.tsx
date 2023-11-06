@@ -9,34 +9,22 @@ import styles from './SelectModal.module.css'
 
 type HoverButtonProps = {
   value: number
-  hoveringPoint: Point | null
-  onEnter: (value: number) => void
-  onLeave: (value: number) => void
 }
 
 function HoverButton(props: ButtonProps & HoverButtonProps) {
-  const { value, hoveringPoint, onEnter, onLeave, ...buttonProps } = props
+  const { value, ...buttonProps } = props
 
   const buttonElementRef = useRef<HTMLButtonElement>(null)
 
-  useEffect(() => {
-    if (!buttonElementRef.current) return
-    if (!hoveringPoint) return
-
-    const buttonRect = buttonElementRef.current.getBoundingClientRect()
-    if (
-      hoveringPoint[0] >= buttonRect.left &&
-      hoveringPoint[0] <= buttonRect.right &&
-      hoveringPoint[1] >= buttonRect.top &&
-      hoveringPoint[1] <= buttonRect.bottom
-    ) {
-      onEnter(value)
-    } else {
-      onLeave(value)
-    }
-  }, [hoveringPoint, value, onEnter, onLeave])
-
-  return <Button size="sm" ref={buttonElementRef} {...buttonProps} />
+  return (
+    <Button
+      size="sm"
+      data-option-value={value}
+      ref={buttonElementRef}
+      className={styles.button}
+      {...buttonProps}
+    />
+  )
 }
 
 type SelectModalProps = {
@@ -50,21 +38,13 @@ type SelectModalProps = {
 function SelectModal(props: SelectModalProps) {
   const { label, optionList, isOpen, onSelect, nearValue } = props
 
-  const [currentPoint, setCurrentPoint] = useState<Point | null>(null)
   const [currentValue, setCurrentValue] = useState<number | null>(null)
 
   const onPointerMove = useCallback((e: PointerEvent) => {
-    setCurrentPoint([e.clientX, e.clientY])
-  }, [])
-
-  const onHoverButtonEnter = useCallback((value: number) => {
-    setCurrentValue(value)
-  }, [])
-  const onHoverButtonLeave = useCallback((leavingValue: number) => {
-    setCurrentValue((currentValue) => {
-      if (currentValue === leavingValue) return null
-      return currentValue
-    })
+    const hoveredElement = document.elementFromPoint(e.clientX, e.clientY)
+    if (!hoveredElement) return
+    const value = (hoveredElement as HTMLElement).dataset.optionValue
+    setCurrentValue(Number(value) || null)
   }, [])
 
   useEffect(() => {
@@ -76,7 +56,6 @@ function SelectModal(props: SelectModalProps) {
       document.addEventListener('pointermove', onPointerMove)
     } else {
       document.removeEventListener('pointermove', onPointerMove)
-      setCurrentPoint(null)
     }
     return () => {
       document.removeEventListener('pointermove', onPointerMove)
@@ -116,13 +95,7 @@ function SelectModal(props: SelectModalProps) {
             <div className={styles.modalButtonList}>
               {optionList.map(({ value, text }) => {
                 return (
-                  <HoverButton
-                    key={value}
-                    value={value}
-                    hoveringPoint={currentPoint}
-                    onEnter={onHoverButtonEnter}
-                    onLeave={onHoverButtonLeave}
-                  >
+                  <HoverButton key={value} value={value}>
                     {text}
                   </HoverButton>
                 )

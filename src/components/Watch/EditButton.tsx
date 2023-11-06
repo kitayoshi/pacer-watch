@@ -22,6 +22,8 @@ export function LockButton(props: LockButtonProps) {
       isIconOnly
       className={cx({ [styles.locked]: locked }, className)}
       onClick={onClick}
+      radius="full"
+      variant="bordered"
     >
       <IconImage className={styles.icon} />
     </Button>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Select, SelectItem } from '@nextui-org/select'
 import { Button } from '@nextui-org/button'
@@ -28,9 +28,10 @@ import {
   TIME_OPTION_LIST,
 } from './utils'
 
-import styles from './Watch.module.css'
 import SelectModal from './SelectModal'
-import { timeout } from '@/utils/promise'
+import SelectNumber from './SelectNumber'
+
+import styles from './Watch.module.css'
 
 const fontKnob = Lato({ weight: '700', subsets: ['latin'] })
 
@@ -130,6 +131,20 @@ function Watch() {
     },
     [lock, lastChange]
   )
+  const unlock = useCallback(
+    (locking: Lock) => {
+      if (locking === 'distance' && lock === 'distance') {
+        setLock(lastChange === 'distance' ? 'pace' : lastChange)
+      }
+      if (locking === 'pace' && lock === 'pace') {
+        setLock(lastChange === 'pace' ? 'distance' : lastChange)
+      }
+      if (locking === 'time' && lock === 'time') {
+        setLock(lastChange === 'time' ? 'distance' : lastChange)
+      }
+    },
+    [lock, lastChange]
+  )
 
   // distance
   const [rotateDistance, setRotateDistance] = useState<number | null>(null)
@@ -152,13 +167,12 @@ function Watch() {
     [changeDistance]
   )
   const onDisntanceModalChange = useCallback(
-    async (value: number | null) => {
+    (value: number | null) => {
       if (value === null) {
         setDisatanceModalSelected(false)
         return
       }
       setDisatanceModalSelected(true)
-      await timeout(10)
       changeDistance(value)
     },
     [changeDistance]
@@ -195,7 +209,6 @@ function Watch() {
         return
       }
       setPaceModalSelected(true)
-      await timeout(10)
       changePace(value)
     },
     [changePace]
@@ -226,13 +239,12 @@ function Watch() {
     [changeTime]
   )
   const onTimeModalChange = useCallback(
-    async (value: number | null) => {
+    (value: number | null) => {
       if (value === null) {
         setTimeModalSelected(false)
         return
       }
       setTimeModalSelected(true)
-      await timeout(10)
       changeTime(value)
     },
     [changeTime]
@@ -247,50 +259,58 @@ function Watch() {
       <div className={styles.navbar}>PACER.WATCH</div>
 
       <div className={styles.numberArea}>
-        <DistanceNumber className={styles.number} distance={distance} />
-        <PaceNumber className={styles.number} pace={pace} />
-        <TimeNumber className={styles.number} time={time} />
+        <div className={styles.numberItem}>
+          <SelectNumber
+            className={styles.numberSelect}
+            label="DISTANCE"
+            value={distance}
+            optionList={DISTANCE_OPTION_LIST}
+            onChange={(nextDistance) => {
+              unlock('distance')
+              changeDistance(nextDistance)
+            }}
+          />
+          <DistanceNumber className={styles.number} distance={distance} />
+        </div>
+
+        <div className={styles.numberItem}>
+          <SelectNumber
+            className={styles.numberSelect}
+            label="PACE"
+            value={pace}
+            optionList={PACE_OPTION_LIST}
+            onChange={(nextPace) => {
+              unlock('pace')
+              changePace(nextPace)
+            }}
+          />
+          <PaceNumber className={styles.number} pace={pace} />
+        </div>
+
+        <div className={styles.numberItem}>
+          <SelectNumber
+            className={styles.numberSelect}
+            label="TIME"
+            value={time}
+            optionList={TIME_OPTION_LIST}
+            onChange={(nextTime) => {
+              unlock('time')
+              changeTime(nextTime)
+            }}
+          />
+          <TimeNumber className={styles.number} time={time} />
+        </div>
       </div>
 
       <div className={styles.buttonArea}>
         <div className={styles.buttonContainer}>
-          <Select
-            className={styles.select}
-            label="DISTANCE"
-            selectedKeys={[
-              DISTANCE_OPTION_LIST.find((o) => o.value === distance)?.text ??
-                'FREE',
-            ]}
-            disabledKeys={['FREE']}
-            onSelectionChange={(keys) => {
-              const [key] = Array.from(keys)
-              const nextDistance = DISTANCE_OPTION_LIST.find(
-                (o) => o.text === key
-              )?.value
-              if (!nextDistance) return
-              if (lock === 'distance' && lastChange !== 'distance') {
-                setLock(lastChange)
-              }
-              changeDistance(nextDistance)
-            }}
-          >
-            {[...DISTANCE_OPTION_LIST, { value: 0, text: 'FREE' }].map(
-              ({ value, text }) => (
-                <SelectItem key={text} value={value}>
-                  {text}
-                </SelectItem>
-              )
-            )}
-          </Select>
           <Knob
             disabled={distanceKnobDisabled}
             baseValue={distanceBase}
             value={distance}
             step={DISTANCE_KNOB_STEP}
             onBeforeRotateStart={() => {
-              if (lock === 'distance' && lastChange !== 'distance') {
-                setLock(lastChange)
-              }
+              unlock('distance')
             }}
             onRotate={onDistanceRotate}
             onRotateStart={onDistanceRotateStart}
@@ -307,42 +327,13 @@ function Watch() {
         </div>
 
         <div className={styles.buttonContainer}>
-          <Select
-            className={styles.select}
-            label="PACE"
-            selectedKeys={[
-              PACE_OPTION_LIST.find((o) => o.value === pace)?.text ?? 'FREE',
-            ]}
-            disabledKeys={['FREE']}
-            onSelectionChange={(keys) => {
-              const [key] = Array.from(keys)
-              const nextPace = PACE_OPTION_LIST.find(
-                (o) => o.text === key
-              )?.value
-              if (!nextPace) return
-              if (lock === 'pace' && lastChange !== 'pace') {
-                setLock(lastChange)
-              }
-              changePace(nextPace)
-            }}
-          >
-            {[...PACE_OPTION_LIST, { value: 0, text: 'FREE' }].map(
-              ({ value, text }) => (
-                <SelectItem key={text} value={value}>
-                  {text}
-                </SelectItem>
-              )
-            )}
-          </Select>
           <Knob
             disabled={paceKnobDisabled}
             baseValue={paceBase}
             value={pace}
             step={PACE_KNOB_STEP}
             onBeforeRotateStart={() => {
-              if (lock === 'pace' && lastChange !== 'pace') {
-                setLock(lastChange)
-              }
+              unlock('pace')
             }}
             onRotate={onPaceRotate}
             onRotateStart={onPaceRotateStart}
@@ -360,43 +351,13 @@ function Watch() {
         </div>
 
         <div className={styles.buttonContainer}>
-          <Select
-            className={styles.select}
-            label="TIME"
-            selectedKeys={[
-              TIME_OPTION_LIST.find((o) => o.value === time)?.text ?? 'FREE',
-            ]}
-            disabledKeys={['TIME']}
-            onSelectionChange={(keys) => {
-              const [key] = Array.from(keys)
-              const nextTime = TIME_OPTION_LIST.find(
-                (o) => o.text === key
-              )?.value
-              if (!nextTime) return
-              if (lock === 'time' && lastChange !== 'time') {
-                setLock(lastChange)
-              }
-              changeTime(nextTime)
-            }}
-          >
-            {[...TIME_OPTION_LIST, { value: 0, text: 'FREE' }].map(
-              ({ value, text }) => (
-                <SelectItem key={text} value={value}>
-                  {text}
-                </SelectItem>
-              )
-            )}
-          </Select>
-
           <Knob
             disabled={timeKnobDisabled}
             baseValue={timeBase}
             value={time}
             step={TIME_KNOB_STEP}
             onBeforeRotateStart={() => {
-              if (lock === 'time' && lastChange !== 'time') {
-                setLock(lastChange)
-              }
+              unlock('time')
             }}
             onRotate={onTimeRotate}
             onRotateStart={onTimeRotateStart}

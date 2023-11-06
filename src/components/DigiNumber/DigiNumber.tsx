@@ -19,7 +19,7 @@ function DigiNumber(props: DigiNumberProps) {
   const { className, label, numberText, subNumberText } = props
   return (
     <div className={cx(font.className, styles.root, className)}>
-      {label && <div className={styles.label}>{label}</div>}
+      {/* {label && <div className={styles.label}>{label}</div>} */}
       <div className={styles.numberText}>{numberText}</div>
       {subNumberText && (
         <div className={styles.subNumberText}>{subNumberText}</div>

@@ -38,7 +38,7 @@ function Knob(props: KnobProps) {
     onRotate,
     onRotateStart,
     onRotateEnd,
-    disabled,
+    disabled = false,
   } = props
 
   const period = (value - baseValue) / step
@@ -49,18 +49,14 @@ function Knob(props: KnobProps) {
   const currentDeltaRef = useRef<number | null>(null)
   const closewiseCount = useRef(0)
 
-  const buttonElementRef = useRef<HTMLButtonElement>(null)
+  const elementRef = useRef<HTMLButtonElement>(null)
   const buttonPointRef = useRef<Point | null>(null)
   const startPointRef = useRef<Point | null>(null)
   const currentPointRef = useRef<Point | null>(null)
 
-  const disabledRef = useRef(disabled)
-  useEffect(() => {
-    disabledRef.current = disabled
-  }, [disabled])
-
-  const onPointerMove = useCallback(
-    (e: PointerEvent) => {
+  const onPointerMove = useCallback<PointerEventHandler<HTMLButtonElement>>(
+    (e) => {
+      if (!moving) return
       if (!buttonPointRef.current) return
       if (!startPointRef.current) {
         startPointRef.current = [e.clientX, e.clientY]
@@ -83,10 +79,10 @@ function Knob(props: KnobProps) {
 
       if (currentDeltaRef.current !== null) {
         // closewise thershold
-        if (nextDelta < 5 && currentDeltaRef.current > 355) {
+        if (currentDeltaRef.current - nextDelta > 270) {
           closewiseCount.current += 1
         }
-        if (nextDelta > 355 && currentDeltaRef.current < 5) {
+        if (nextDelta - currentDeltaRef.current > 270) {
           closewiseCount.current -= 1
         }
       }
@@ -102,54 +98,54 @@ function Knob(props: KnobProps) {
       const nextValue = baseValue + nextPeriod * step
 
       if (min !== undefined && nextValue <= min) {
-        onRotate(min, disabledRef.current)
+        onRotate(min, disabled)
         return
       }
       if (max !== undefined && nextValue > max) {
-        onRotate(max, disabledRef.current)
+        onRotate(max, disabled)
         return
       }
 
-      onRotate(nextValue, disabledRef.current)
+      onRotate(nextValue, disabled)
     },
-    [min, max, onRotate, baseValue, step]
+    [min, max, onRotate, disabled, baseValue, step, moving]
   )
 
-  const onPointerUp = useCallback(() => {
-    onRotateEnd?.()
-    setMoving(false)
+  const onPointerUp = useCallback<PointerEventHandler<HTMLButtonElement>>(
+    (e) => {
+      e.currentTarget.releasePointerCapture(e.pointerId)
+      onRotateEnd?.()
+      setMoving(false)
 
-    startPointRef.current = null
-    currentPointRef.current = null
+      startPointRef.current = null
+      currentPointRef.current = null
 
-    currentAngleRef.current =
-      currentAngleRef.current + (currentDeltaRef.current || 0)
-    currentDeltaRef.current = null
-    closewiseCount.current = 0
+      currentAngleRef.current =
+        currentAngleRef.current + (currentDeltaRef.current || 0)
+      currentDeltaRef.current = null
+      closewiseCount.current = 0
+    },
+    [onRotateEnd]
+  )
 
-    document.removeEventListener('pointermove', onPointerMove)
-    document.removeEventListener('pointerup', onPointerUp)
-  }, [onPointerMove, onRotateEnd])
+  const onPointerDown = useCallback<PointerEventHandler<HTMLButtonElement>>(
+    (e) => {
+      if (disabled) return
 
-  const onPointerDown = useCallback<
-    PointerEventHandler<HTMLButtonElement>
-  >(() => {
-    if (disabled) return
-    onRotateStart?.()
+      e.currentTarget.setPointerCapture(e.pointerId)
+      onRotateStart?.()
+      setMoving(true)
 
-    setMoving(true)
-
-    startPointRef.current = null
-    currentPointRef.current = null
-    closewiseCount.current = 0
-    currentAngleRef.current = period * 360
-
-    document.addEventListener('pointermove', onPointerMove)
-    document.addEventListener('pointerup', onPointerUp)
-  }, [disabled, onRotateStart, period, onPointerMove, onPointerUp])
+      startPointRef.current = null
+      currentPointRef.current = null
+      closewiseCount.current = 0
+      currentAngleRef.current = period * 360
+    },
+    [disabled, onRotateStart, period]
+  )
 
   const resetButtonRect = useCallback(() => {
-    const buttonRect = buttonElementRef.current?.getBoundingClientRect()
+    const buttonRect = elementRef.current?.getBoundingClientRect()
     if (!buttonRect) return
     buttonPointRef.current = [
       buttonRect.left + buttonRect.width / 2,
@@ -170,14 +166,29 @@ function Knob(props: KnobProps) {
   return (
     <div className={cx(styles.container, className)}>
       <button
-        className={cx(styles.button, { [styles.buttonMoving]: moving })}
+        className={cx(styles.button, 'border-default', 'border-medium', {
+          [styles.buttonMoving]: moving,
+        })}
+        data-pressed={moving}
         onPointerDownCapture={onBeforeRotateStart}
         onPointerDown={onPointerDown}
-        ref={buttonElementRef}
-        style={{ transform: `rotate(${rotateAngle}deg)` }}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        ref={elementRef}
+        style={{
+          transform: `rotate(${rotateAngle}deg) scale(${moving ? 0.97 : 1})`,
+        }}
         onContextMenu={(e) => e.preventDefault()}
       >
-        <div className={styles.buttonDot} />
+        <div
+          className={cx(
+            styles.buttonDot,
+            'bg-default',
+            'border-default',
+            'border-medium',
+            'rounded-full'
+          )}
+        />
       </button>
     </div>
   )

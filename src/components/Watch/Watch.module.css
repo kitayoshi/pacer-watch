@@ -11,13 +11,24 @@
 }
 
 .numberArea {
-  align-items: flex-end;
+  align-items: stretch;
   display: flex;
   flex-direction: column;
 }
 
-.number {
+.numberItem {
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
   margin-top: 12px;
+}
+
+.numberSelect {
+  width: 120px;
+}
+
+.number {
+  /* margin-top: 12px; */
 }
 
 .buttonArea {
@@ -31,10 +42,6 @@
   align-items: center;
   display: flex;
   flex-direction: column;
-}
-
-.select {
-  margin-bottom: 12px;
 }
 
 .buttonText {

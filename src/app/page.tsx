@@ -1,14 +1,14 @@
 import cx from 'classnames'
 import { Link } from '@nextui-org/link'
 
-import Watch from '@/components/Watch'
+import CardList from '@/components/CardList'
 
 import styles from './page.module.css'
 
 export default function Home() {
   return (
     <main className={styles.main}>
-      <Watch className={cx(styles.watch, 'sm:my-auto')} />
+      <CardList className={cx(styles.cardList)} />
       <footer className={styles.footer}>
         <Link
           href="https://x.com/kitayoshi_son"

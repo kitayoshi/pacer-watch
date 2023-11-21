@@ -1,8 +1,7 @@
 .container {
-  color: #333;
   display: flex;
   flex-direction: column;
-  max-width: 360px;
+  max-width: calc(390px - 12px - 12px);
   padding: 16px;
   width: 100%;
 }
@@ -84,4 +83,11 @@
   display: flex;
   height: 36px;
   justify-content: center;
+}
+
+.toolButtonList {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 24px;
+  width: 100%;
 }

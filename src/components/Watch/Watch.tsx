@@ -1,8 +1,9 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react'
 
 import { Card } from '@nextui-org/card'
+import { Button } from '@nextui-org/button'
 
 import cx from 'classnames'
 import { Lato } from 'next/font/google'
@@ -12,7 +13,7 @@ import DistanceNumber from '@/components/DistanceNumber'
 import TimeNumber from '@/components/TimeNumber'
 import Knob from '@/components/Knob'
 
-import { LockButton, MinusButton, PlusButton } from './EditButton'
+import { LockButton } from './EditButton'
 
 import {
   DEFAULT_DISTANCE,
@@ -25,6 +26,7 @@ import {
   DISTANCE_OPTION_LIST,
   PACE_OPTION_LIST,
   TIME_OPTION_LIST,
+  DistanceTime,
 } from './utils'
 
 import SelectModal from './SelectModal'
@@ -32,18 +34,19 @@ import SelectNumber from './SelectNumber'
 
 import styles from './Watch.module.css'
 
-const fontKnob = Lato({ weight: '700', subsets: ['latin'] })
-
 type NumberChanger = number | ((nextNumber: number) => number)
 
 type Lock = 'distance' | 'pace' | 'time'
 
 type WatchProps = {
   className?: string
+  onLapButtonClick?: () => void
+  distanceTime: DistanceTime
+  setDistanceTime: Dispatch<SetStateAction<DistanceTime>>
 }
 
 function Watch(props: WatchProps) {
-  const { className } = props
+  const { className, onLapButtonClick, distanceTime, setDistanceTime } = props
 
   // base value
   const [distanceBase, setDistanceBase] = useState(DEFAULT_DISTANCE_BASE)
@@ -54,10 +57,8 @@ function Watch(props: WatchProps) {
   )
 
   // value state
-  const [distanceTime, setDistanceTime] = useState([
-    DEFAULT_DISTANCE,
-    DEFAULT_TIME,
-  ])
+  // const [distanceTime, setDistanceTime] =
+  //   useState<DistanceTime>(defaultDistanceTime)
 
   // lock
   const [lock, setLock] = useState<Lock>('distance')
@@ -85,7 +86,7 @@ function Watch(props: WatchProps) {
         return [nextDistance, currentTime]
       })
     },
-    [lock]
+    [lock, setDistanceTime]
   )
   const changeTime = useCallback(
     (timeChanger: NumberChanger) => {
@@ -103,7 +104,7 @@ function Watch(props: WatchProps) {
         return [currentDistance, nextTime]
       })
     },
-    [lock]
+    [lock, setDistanceTime]
   )
   const changePace = useCallback(
     (paceChanger: NumberChanger) => {
@@ -134,7 +135,7 @@ function Watch(props: WatchProps) {
       })
       return
     },
-    [lock, lastChange]
+    [lock, lastChange, setDistanceTime]
   )
   const unlock = useCallback(
     (locking: Lock) => {
@@ -381,6 +382,20 @@ function Watch(props: WatchProps) {
             }}
           />
         </div>
+      </div>
+
+      <div className={styles.toolButtonList}>
+        <Button
+          radius="full"
+          variant="bordered"
+          className={cx('border-small')}
+          onClick={onLapButtonClick}
+        >
+          LAP
+        </Button>
+        {/* <Button radius="full" variant="bordered" className={cx('border-small')}>
+          CAD
+        </Button> */}
       </div>
 
       <SelectModal

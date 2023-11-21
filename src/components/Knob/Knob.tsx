@@ -132,6 +132,13 @@ function Knob(props: KnobProps) {
     (e) => {
       if (disabled) return
 
+      const buttonRect = elementRef.current?.getBoundingClientRect()
+      if (!buttonRect) return
+      buttonPointRef.current = [
+        buttonRect.x + buttonRect.width / 2,
+        buttonRect.y + buttonRect.height / 2,
+      ]
+
       e.currentTarget.setPointerCapture(e.pointerId)
       onRotateStart?.()
       setMoving(true)
@@ -143,23 +150,6 @@ function Knob(props: KnobProps) {
     },
     [disabled, onRotateStart, period]
   )
-
-  const resetButtonRect = useCallback(() => {
-    const buttonRect = elementRef.current?.getBoundingClientRect()
-    if (!buttonRect) return
-    buttonPointRef.current = [
-      buttonRect.left + buttonRect.width / 2,
-      buttonRect.top + buttonRect.height / 2,
-    ]
-  }, [])
-
-  useEffect(() => {
-    resetButtonRect()
-    window.addEventListener('resize', resetButtonRect)
-    return () => {
-      window.removeEventListener('resize', resetButtonRect)
-    }
-  }, [resetButtonRect])
 
   const rotateAngle = (period * 360) % 360
 

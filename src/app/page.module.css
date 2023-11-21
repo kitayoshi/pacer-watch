@@ -1,6 +1,14 @@
 .main {
-  background-color: #fefefe;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
   height: 100vh;
+  height: 100svh;
+  justify-content: center;
   padding: 12px;
   width: 100vw;
+}
+
+.footer {
+  margin-top: auto;
 }

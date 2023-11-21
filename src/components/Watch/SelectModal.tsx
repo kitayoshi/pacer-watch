@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import cx from 'classnames'
 import { Modal, ModalContent, ModalBody, ModalHeader } from '@nextui-org/modal'
 import { Button, ButtonProps } from '@nextui-org/button'
 import { ScrollShadow } from '@nextui-org/scroll-shadow'
-
-import { Point } from '@/utils/angle'
 
 import styles from './SelectModal.module.css'
 
@@ -19,9 +18,12 @@ function HoverButton(props: ButtonProps & HoverButtonProps) {
   return (
     <Button
       size="sm"
+      variant="bordered"
+      radius="full"
+      data-select-button-hover="false"
       data-option-value={value}
       ref={buttonElementRef}
-      className={styles.button}
+      className={cx(styles.button, 'border-small')}
       {...buttonProps}
     />
   )
@@ -41,10 +43,23 @@ function SelectModal(props: SelectModalProps) {
   const [currentValue, setCurrentValue] = useState<number | null>(null)
 
   const onPointerMove = useCallback((e: PointerEvent) => {
-    const hoveredElement = document.elementFromPoint(e.clientX, e.clientY)
+    const hoveredElement = document.elementFromPoint(
+      e.clientX,
+      e.clientY
+    ) as HTMLElement | null
+
+    const hoverElementList = document.querySelectorAll(
+      `[data-select-button-hover]`
+    ) as NodeListOf<HTMLElement>
+    hoverElementList.forEach((element) => {
+      element.dataset.selectButtonHover = 'false'
+    })
     if (!hoveredElement) return
-    const value = (hoveredElement as HTMLElement).dataset.optionValue
+
+    const value = hoveredElement.dataset.optionValue
     setCurrentValue(Number(value) || null)
+
+    hoveredElement.dataset.selectButtonHover = 'true'
   }, [])
 
   useEffect(() => {

@@ -20,7 +20,7 @@ export function LockButton(props: LockButtonProps) {
   return (
     <Button
       isIconOnly
-      className={cx({ [styles.locked]: locked }, className)}
+      className={cx({ [styles.locked]: locked }, 'border-small', className)}
       onClick={onClick}
       radius="full"
       variant="bordered"

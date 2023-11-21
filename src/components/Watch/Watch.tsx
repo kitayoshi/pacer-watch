@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { Select, SelectItem } from '@nextui-org/select'
-import { Button } from '@nextui-org/button'
+import { Card } from '@nextui-org/card'
 
 import cx from 'classnames'
 import { Lato } from 'next/font/google'
@@ -39,7 +38,13 @@ type NumberChanger = number | ((nextNumber: number) => number)
 
 type Lock = 'distance' | 'pace' | 'time'
 
-function Watch() {
+type WatchProps = {
+  className?: string
+}
+
+function Watch(props: WatchProps) {
+  const { className } = props
+
   // base value
   const [distanceBase, setDistanceBase] = useState(DEFAULT_DISTANCE_BASE)
   const [timeBase, setTimeBase] = useState(DEFAULT_TIME_BASE)
@@ -255,8 +260,10 @@ function Watch() {
   )
 
   return (
-    <div className={styles.container}>
-      <div className={styles.navbar}>PACER.WATCH</div>
+    <Card className={cx(styles.container, className)}>
+      <div className={styles.navbar}>
+        <div className={styles.navbarHeader}>PACER.WATCH</div>
+      </div>
 
       <div className={styles.numberArea}>
         <div className={styles.numberItem}>
@@ -399,7 +406,7 @@ function Watch() {
         isOpen={showTimeModal}
         onSelect={onTimeModalChange}
       />
-    </div>
+    </Card>
   )
 }
 

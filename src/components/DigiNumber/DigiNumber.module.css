@@ -2,11 +2,13 @@
   align-items: flex-end;
   display: flex;
   flex-direction: column;
+  height: 56px;
 }
 
 .numberText {
   color: #333;
-  font-size: 48px;
+  font-size: 36px;
+  line-height: 36px;
 }
 
 .label {
@@ -17,6 +19,7 @@
 
 .subNumberText {
   color: #ddd;
-  font-size: 20px;
-  margin-top: -16px;
+  font-size: 16px;
+  line-height: 16px;
+  margin-top: 4px;
 }

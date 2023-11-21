@@ -7,6 +7,7 @@
   padding: 12px 0;
 }
 
-.button:hover {
+.button[data-select-button-hover='true'] {
+  scale: 0.97;
   opacity: 0.5;
 }

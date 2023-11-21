@@ -166,7 +166,7 @@ function Knob(props: KnobProps) {
   return (
     <div className={cx(styles.container, className)}>
       <button
-        className={cx(styles.button, 'border-default', 'border-medium', {
+        className={cx(styles.button, 'border-default', 'border-small', {
           [styles.buttonMoving]: moving,
         })}
         data-pressed={moving}

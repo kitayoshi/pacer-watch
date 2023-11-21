@@ -2,12 +2,26 @@
   color: #333;
   display: flex;
   flex-direction: column;
+  max-width: 360px;
+  padding: 16px;
+  width: 100%;
 }
 
 .navbar {
   align-self: center;
   font-size: 24px;
   font-weight: 700;
+}
+
+.navbarHeader {
+  position: relative;
+}
+
+.navbarHeaderHint {
+  color: #ddd;
+  position: absolute;
+  right: 100%;
+  font-size: 24px;
 }
 
 .numberArea {
@@ -20,7 +34,7 @@
   align-items: center;
   justify-content: space-between;
   display: flex;
-  margin-top: 12px;
+  margin-top: 24px;
 }
 
 .numberSelect {
@@ -33,7 +47,7 @@
 
 .buttonArea {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   margin-top: 24px;
   width: 100%;
 }

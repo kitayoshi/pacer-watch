@@ -14,7 +14,8 @@ function SelectNumber(props: SelectNumberProps) {
   return (
     <Select
       className={cx(className)}
-      variant="bordered"
+      variant="flat"
+      radius="full"
       label={label}
       selectedKeys={[optionList.find((o) => o.value === value)?.text ?? 'FREE']}
       disabledKeys={['FREE']}

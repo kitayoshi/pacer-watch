@@ -1,5 +1,5 @@
 .main {
-  align-items: center;
+  align-items: stretch;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -10,6 +10,7 @@
 }
 
 .footer {
-  margin-top: auto;
+  display: flex;
+  justify-content: center;
   padding: 16px 0;
 }

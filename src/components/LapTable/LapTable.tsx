@@ -25,7 +25,15 @@ function LapTable(props: LapTableProps) {
   const { className, pace } = props
   return (
     <Card className={cx(styles.container, className)}>
-      <Table removeWrapper aria-label="Lap table" isStriped>
+      <div className={styles.navbar}>
+        <div className={styles.navbarHeader}>LAP TABLE</div>
+      </div>
+      <Table
+        className={styles.table}
+        removeWrapper
+        aria-label="Lap table"
+        isStriped
+      >
         <TableHeader>
           <TableColumn>DISTANCE</TableColumn>
           <TableColumn>TIME</TableColumn>

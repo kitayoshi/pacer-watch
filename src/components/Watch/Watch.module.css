@@ -40,10 +40,6 @@
   width: 120px;
 }
 
-.number {
-  /* margin-top: 12px; */
-}
-
 .buttonArea {
   display: flex;
   justify-content: space-between;

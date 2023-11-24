@@ -5,3 +5,17 @@
   padding: 16px;
   width: 100%;
 }
+
+.navbar {
+  align-self: center;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.navbarHeader {
+  position: relative;
+}
+
+.table {
+  margin-top: 24px;
+}

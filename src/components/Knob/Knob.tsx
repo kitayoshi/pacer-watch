@@ -31,7 +31,7 @@ function Knob(props: KnobProps) {
     className,
     step = 1,
     baseValue = 0,
-    min = 0,
+    min = 0.001,
     max = Number.MAX_SAFE_INTEGER,
     value,
     onBeforeRotateStart,

@@ -12,6 +12,7 @@ import PaceNumber from '@/components/PaceNumber'
 import DistanceNumber from '@/components/DistanceNumber'
 import TimeNumber from '@/components/TimeNumber'
 import Knob from '@/components/Knob'
+import { Changer, History } from '@/utils/type'
 
 import { LockButton } from './EditButton'
 
@@ -34,19 +35,24 @@ import SelectNumber from './SelectNumber'
 
 import styles from './Watch.module.css'
 
-type NumberChanger = number | ((nextNumber: number) => number)
+type NumberChanger = Changer<number>
+type NumberListChanger = Changer<[number, number]>
 
 type Lock = 'distance' | 'pace' | 'time'
+type LockChanger = Changer<Lock>
 
 type WatchProps = {
   className?: string
-  onLapButtonClick?: () => void
   distanceTime: DistanceTime
-  setDistanceTime: Dispatch<SetStateAction<DistanceTime>>
+  setDistanceTime: (changer: NumberListChanger) => void
+  lock: Lock
+  setLock: (nextLock: Lock) => void
+  unlock: (changing: Lock) => void
 }
 
 function Watch(props: WatchProps) {
-  const { className, onLapButtonClick, distanceTime, setDistanceTime } = props
+  const { className, distanceTime, setDistanceTime, lock, setLock, unlock } =
+    props
 
   // base value
   const [distanceBase, setDistanceBase] = useState(DEFAULT_DISTANCE_BASE)
@@ -56,21 +62,12 @@ function Watch(props: WatchProps) {
     [distanceBase, timeBase]
   )
 
-  // value state
-  // const [distanceTime, setDistanceTime] =
-  //   useState<DistanceTime>(defaultDistanceTime)
-
-  // lock
-  const [lock, setLock] = useState<Lock>('distance')
-  const [lastChange, setLastChange] = useState<Lock>('pace')
-
   // utilitiy
   const [distance, time] = distanceTime
   const pace = useMemo(() => time / distance, [distance, time])
 
   const changeDistance = useCallback(
     (distanceChanger: NumberChanger) => {
-      setLastChange('distance')
       setDistanceTime(([currentDistance, currentTime]) => {
         const nextDistance =
           typeof distanceChanger === 'function'
@@ -90,7 +87,6 @@ function Watch(props: WatchProps) {
   )
   const changeTime = useCallback(
     (timeChanger: NumberChanger) => {
-      setLastChange('time')
       setDistanceTime(([currentDistance, currentTime]) => {
         const nextTime =
           typeof timeChanger === 'function'
@@ -108,7 +104,6 @@ function Watch(props: WatchProps) {
   )
   const changePace = useCallback(
     (paceChanger: NumberChanger) => {
-      setLastChange('pace')
       setDistanceTime(([currentDistance, currentTime]) => {
         const currentPace = currentTime / currentDistance
         const nextPace =
@@ -117,7 +112,6 @@ function Watch(props: WatchProps) {
             : paceChanger
 
         if (lock === 'pace') {
-          setLock(lastChange)
           return [currentDistance, currentTime]
         }
 
@@ -135,21 +129,7 @@ function Watch(props: WatchProps) {
       })
       return
     },
-    [lock, lastChange, setDistanceTime]
-  )
-  const unlock = useCallback(
-    (locking: Lock) => {
-      if (locking === 'distance' && lock === 'distance') {
-        setLock(lastChange === 'distance' ? 'pace' : lastChange)
-      }
-      if (locking === 'pace' && lock === 'pace') {
-        setLock(lastChange === 'pace' ? 'distance' : lastChange)
-      }
-      if (locking === 'time' && lock === 'time') {
-        setLock(lastChange === 'time' ? 'distance' : lastChange)
-      }
-    },
-    [lock, lastChange]
+    [lock, setDistanceTime]
   )
 
   // distance
@@ -328,7 +308,6 @@ function Watch(props: WatchProps) {
             className={styles.lockButton}
             locked={lock === 'distance'}
             onClick={() => {
-              if (lock === 'distance') return
               setLock('distance')
             }}
           />
@@ -347,12 +326,10 @@ function Watch(props: WatchProps) {
             onRotateStart={onPaceRotateStart}
             onRotateEnd={onPaceRotateEnd}
           />
-          {/* <div className={cx(fontKnob.className, styles.buttonText)}>PACE</div> */}
           <LockButton
             className={styles.lockButton}
             locked={lock === 'pace'}
             onClick={() => {
-              if (lock === 'pace') return
               setLock('pace')
             }}
           />
@@ -372,30 +349,14 @@ function Watch(props: WatchProps) {
             onRotateEnd={onTimeRotateEnd}
           />
 
-          {/* <div className={cx(fontKnob.className, styles.buttonText)}>TIME</div> */}
           <LockButton
             className={styles.lockButton}
             locked={lock === 'time'}
             onClick={() => {
-              if (lock === 'time') return
               setLock('time')
             }}
           />
         </div>
-      </div>
-
-      <div className={styles.toolButtonList}>
-        <Button
-          radius="full"
-          variant="bordered"
-          className={cx('border-small')}
-          onClick={onLapButtonClick}
-        >
-          LAP
-        </Button>
-        {/* <Button radius="full" variant="bordered" className={cx('border-small')}>
-          CAD
-        </Button> */}
       </div>
 
       <SelectModal

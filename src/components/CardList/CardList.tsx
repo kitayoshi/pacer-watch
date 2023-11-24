@@ -36,6 +36,8 @@ type NumberListChanger = Changer<[number, number]>
 type WatchLock = 'distance' | 'pace' | 'time'
 type CadenceWatchLock = 'cadence' | 'pace' | 'stride'
 
+type CardType = 'pace' | 'cadence' | 'lap'
+
 function CardList(props: CardListProps) {
   const { className } = props
 
@@ -237,6 +239,28 @@ function CardList(props: CardListProps) {
     [watchLockHistoryList]
   )
 
+  const toogleWatch = useCallback(
+    (cardType: CardType) => {
+      if (cardType === 'pace') {
+        if (showPaceWatch && !showCadenceWatch && !showLapTable) return
+        setShowPaceWatch((current) => !current)
+        return
+      }
+      if (cardType === 'cadence') {
+        if (!showPaceWatch && showCadenceWatch && !showLapTable) return
+        setShowCadenceWatch((current) => !current)
+        return
+      }
+
+      if (cardType === 'lap') {
+        if (!showPaceWatch && !showCadenceWatch && showLapTable) return
+        setShowLapTable((current) => !current)
+        return
+      }
+    },
+    [showPaceWatch, showCadenceWatch, showLapTable]
+  )
+
   return (
     <div
       className={cx(
@@ -259,13 +283,15 @@ function CardList(props: CardListProps) {
           'sm:flex-row'
         )}
       >
-        <Watch
-          distanceTime={distanceTime}
-          setDistanceTime={setDistanceTime}
-          lock={watchLock}
-          setLock={setWatchLock}
-          unlock={unlockWatchLock}
-        />
+        {showPaceWatch && (
+          <Watch
+            distanceTime={distanceTime}
+            setDistanceTime={setDistanceTime}
+            lock={watchLock}
+            setLock={setWatchLock}
+            unlock={unlockWatchLock}
+          />
+        )}
         {showCadenceWatch && (
           <CadenceWatch
             cadenceStride={cadenceStride}
@@ -282,6 +308,9 @@ function CardList(props: CardListProps) {
           className={cx('border-small')}
           variant={showPaceWatch ? 'flat' : 'light'}
           radius="full"
+          onClick={() => {
+            toogleWatch('pace')
+          }}
         >
           PACE
         </Button>
@@ -290,7 +319,7 @@ function CardList(props: CardListProps) {
           variant={showCadenceWatch ? 'flat' : 'light'}
           radius="full"
           onClick={() => {
-            setShowCadenceWatch((current) => !current)
+            toogleWatch('cadence')
           }}
         >
           CADENCE
@@ -300,7 +329,7 @@ function CardList(props: CardListProps) {
           variant={showLapTable ? 'flat' : 'light'}
           radius="full"
           onClick={() => {
-            setShowLapTable((current) => !current)
+            toogleWatch('lap')
           }}
         >
           LAP

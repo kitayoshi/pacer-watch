@@ -1,4 +1,5 @@
 .cardList {
+  /* flex-wrap: wrap; */
   justify-content: center;
   gap: 16px;
   width: 100%;

@@ -13,7 +13,8 @@ export default function Home() {
   return (
     <main className={styles.main}>
       <CardList className={cx(styles.cardList)} />
-      <footer className={styles.footer}>
+
+      <footer className={cx(styles.footer, 'mt-auto', 'sm:mt-0')}>
         <div className={styles.iconLinkList}>
           <a
             className={cx(styles.iconLink)}
@@ -40,7 +41,7 @@ export default function Home() {
           color="foreground"
           target="_blank"
         >
-          @kitayoshi_son
+          by Kitayoshi
         </Link>
       </footer>
     </main>

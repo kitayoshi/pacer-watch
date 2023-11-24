@@ -39,8 +39,8 @@ function CardList(props: CardListProps) {
   const { className } = props
 
   const [showPaceWatch, setShowPaceWatch] = useState(true)
-  const [showCadenceWatch, setShowCadenceWatch] = useState(true)
-  const [showLapTable, setShowLapTable] = useState(true)
+  const [showCadenceWatch, setShowCadenceWatch] = useState(false)
+  const [showLapTable, setShowLapTable] = useState(false)
 
   const [watchLockHistoryList, setWatchLockHistoryList] = useState<
     [History<WatchLock>, History<CadenceWatchLock>]
@@ -234,7 +234,7 @@ function CardList(props: CardListProps) {
         'flex',
         'flex-col',
         'items-center',
-        'gap-8',
+        'gap-6',
         'sm:my-auto'
       )}
     >

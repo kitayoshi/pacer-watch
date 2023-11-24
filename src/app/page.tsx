@@ -1,6 +1,5 @@
 import cx from 'classnames'
 import { Link } from '@nextui-org/link'
-import { Button } from '@nextui-org/button'
 
 import GithubIconImage from '@/images/github-logo.svg'
 import XIconImage from '@/images/x-logo.svg'

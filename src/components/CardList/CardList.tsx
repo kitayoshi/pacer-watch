@@ -1,7 +1,7 @@
 'use client'
 
 import cx from 'classnames'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, ButtonGroup } from '@nextui-org/button'
 
 import Watch from '@/components/Watch'
@@ -18,6 +18,7 @@ import {
   CadenceStride,
   DEFAULT_CADENCE,
   DEFAULT_STRIDE,
+  getCadence,
   getPace,
   getStride,
 } from '@/components/Watch/cadenceUtils'
@@ -176,19 +177,29 @@ function CardList(props: CardListProps) {
       setDistanceTimeCadence((currentDistanceTimeCadence) => {
         const [currentDistance, currentTime, currentCadence] =
           currentDistanceTimeCadence
+        const currentPace = currentTime / currentDistance
         const nextDistanceTimeCadence =
           typeof distanceTimeChanger === 'function'
             ? distanceTimeChanger([currentDistance, currentTime])
             : distanceTimeChanger
 
-        return [
-          nextDistanceTimeCadence[0],
-          nextDistanceTimeCadence[1],
-          currentCadence,
-        ]
+        const [nextDistance, nextTime] = nextDistanceTimeCadence
+
+        if (watchLockHistoryList[1].current === 'stride') {
+          const currentStride = getStride(currentPace, currentCadence)
+          const nextPace = nextTime / nextDistance
+          const nextCadence = getCadence(nextPace, currentStride)
+          return [
+            nextDistanceTimeCadence[0],
+            nextDistanceTimeCadence[1],
+            nextCadence,
+          ]
+        }
+
+        return [nextDistance, nextTime, currentCadence]
       })
     },
-    []
+    [watchLockHistoryList]
   )
 
   const [distance, time, cadence] = distanceTimeCadence

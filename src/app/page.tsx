@@ -18,7 +18,7 @@ export default function Home() {
         <div className={styles.iconLinkList}>
           <a
             className={cx(styles.iconLink)}
-            href="https://github.com/kitayoshi/pacer-watch-ui"
+            href="https://github.com/kitayoshi/pacer-watch"
             target="_blank"
           >
             <GithubIconImage

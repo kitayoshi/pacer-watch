@@ -16,7 +16,8 @@ const nextConfig = {
       // Convert all other *.svg imports to React components
       {
         test: /\.svg$/i,
-        issuer: /\.[jt]sx?$/,
+        // https://github.com/vercel/next.js/issues/48177#issuecomment-1506251112
+        // issuer: /\.[jt]sx?$/,
         resourceQuery: { not: /url/ }, // exclude if *.svg?url
         use: [
           {

@@ -234,7 +234,7 @@ function CardList(props: CardListProps) {
         'flex',
         'flex-col',
         'items-center',
-        'gap-4',
+        'gap-8',
         'sm:my-auto'
       )}
     >

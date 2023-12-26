@@ -8,7 +8,7 @@ import CardList from '@/components/CardList'
 
 import styles from './page.module.css'
 
-export default function Home() {
+function Page() {
   return (
     <main className={styles.main}>
       <CardList className={cx(styles.cardList)} />
@@ -46,3 +46,5 @@ export default function Home() {
     </main>
   )
 }
+
+export default Page

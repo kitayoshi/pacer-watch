@@ -7,6 +7,7 @@ import { Button, ButtonGroup } from '@nextui-org/button'
 import Watch from '@/components/Watch'
 import CadenceWatch from '@/components/Watch/CadenceWatch'
 import LapTable from '@/components/LapTable'
+import LogCard from '@/components/LogCard'
 import { Changer, History } from '@/utils/type'
 
 import {
@@ -17,7 +18,6 @@ import {
 import {
   CadenceStride,
   DEFAULT_CADENCE,
-  DEFAULT_STRIDE,
   getCadence,
   getPace,
   getStride,
@@ -36,7 +36,7 @@ type NumberListChanger = Changer<[number, number]>
 type WatchLock = 'distance' | 'pace' | 'time'
 type CadenceWatchLock = 'cadence' | 'pace' | 'stride'
 
-type CardType = 'pace' | 'cadence' | 'lap'
+type CardType = 'pace' | 'cadence' | 'lap' | 'log'
 
 function CardList(props: CardListProps) {
   const { className } = props
@@ -239,26 +239,60 @@ function CardList(props: CardListProps) {
     [watchLockHistoryList]
   )
 
+  const [showLogCard, setShowLogCard] = useState(false)
+
   const toogleWatch = useCallback(
     (cardType: CardType) => {
       if (cardType === 'pace') {
-        if (showPaceWatch && !showCadenceWatch && !showLapTable) return
+        if (
+          showPaceWatch &&
+          !showCadenceWatch &&
+          !showLapTable &&
+          !showLogCard
+        ) {
+          return
+        }
         setShowPaceWatch((current) => !current)
         return
       }
       if (cardType === 'cadence') {
-        if (!showPaceWatch && showCadenceWatch && !showLapTable) return
+        if (
+          !showPaceWatch &&
+          showCadenceWatch &&
+          !showLapTable &&
+          !showLogCard
+        ) {
+          return
+        }
         setShowCadenceWatch((current) => !current)
         return
       }
-
       if (cardType === 'lap') {
-        if (!showPaceWatch && !showCadenceWatch && showLapTable) return
+        if (
+          !showPaceWatch &&
+          !showCadenceWatch &&
+          showLapTable &&
+          !showLogCard
+        ) {
+          return
+        }
         setShowLapTable((current) => !current)
         return
       }
+      if (cardType === 'log') {
+        if (
+          !showPaceWatch &&
+          !showCadenceWatch &&
+          showLapTable &&
+          showLogCard
+        ) {
+          return
+        }
+        setShowLogCard((current) => !current)
+        return
+      }
     },
-    [showPaceWatch, showCadenceWatch, showLapTable]
+    [showPaceWatch, showCadenceWatch, showLapTable, showLogCard]
   )
 
   return (
@@ -302,6 +336,8 @@ function CardList(props: CardListProps) {
           />
         )}
         {showLapTable && <LapTable pace={pace} />}
+
+        <LogCard show={showLogCard} />
       </div>
       <div className={cx('flex', 'gap-2')}>
         <Button
@@ -333,6 +369,17 @@ function CardList(props: CardListProps) {
           }}
         >
           LAP
+        </Button>
+
+        <Button
+          className={cx('border-small')}
+          variant={showLogCard ? 'flat' : 'light'}
+          radius="full"
+          onClick={() => {
+            toogleWatch('log')
+          }}
+        >
+          LOG
         </Button>
       </div>
     </div>

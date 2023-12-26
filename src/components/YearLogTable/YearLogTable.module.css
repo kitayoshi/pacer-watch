@@ -1,0 +1,43 @@
+.container {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.weekdayListContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.weekListContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 1px;
+}
+
+.dayBlock {
+  background: #eee;
+  height: 5px;
+  width: 5px;
+}
+
+.dayBlockEmpty {
+  background: none;
+}
+
+.dayBlock100 {
+  background: #fc5200;
+}
+
+.dayBlock75 {
+  background: #ff8c00;
+}
+
+.dayBlock50 {
+  background: #ffbf00;
+}
+
+.dayBlock25 {
+  background: #ffe500;
+}

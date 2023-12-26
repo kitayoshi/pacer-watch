@@ -1,0 +1,25 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  max-width: calc(390px - 12px - 12px);
+  padding: 16px;
+  width: 100%;
+}
+
+.navbar {
+  align-self: center;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.navbarHeader {
+  height: 36px;
+  position: relative;
+}
+
+.buttonContainer {
+  align-items: center;
+  display: flex;
+  flex-grow: 1;
+  justify-content: center;
+}

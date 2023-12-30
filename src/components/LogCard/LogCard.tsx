@@ -8,6 +8,7 @@ import { Card } from '@nextui-org/card'
 import { Select, SelectItem } from '@nextui-org/select'
 import { Button } from '@nextui-org/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@nextui-org/popover'
+import { Spinner } from '@nextui-org/spinner'
 
 import SyncImage from '@material-design-icons/svg/filled/sync.svg'
 
@@ -59,6 +60,7 @@ function LogCard(props: LogCardProps) {
     setStravaAccessToken(storageToken)
   }, [router, searchParams])
 
+  const [fetching, setFetching] = useState(false)
   const [activityList, setActivityList] = useState<Activity[]>([])
   const fetchData = useCallback(
     async (
@@ -66,10 +68,11 @@ function LogCard(props: LogCardProps) {
       stravaAccessToken: string,
       refresh?: boolean
     ) => {
+      setFetching(true)
       const url = new URL('/api/strava-activities', window.location.origin)
       if (refresh) url.searchParams.set('refresh', '1')
 
-      const responseData = (await fetch(url, {
+      const responseData: Activity[] = await fetch(url, {
         headers: {
           ['x-strava-athlete-id']: String(stravaAthleteId),
           ['x-strava-access-token']: stravaAccessToken,
@@ -79,7 +82,9 @@ function LogCard(props: LogCardProps) {
         .catch(() => {
           localStorage.removeItem('PACER_WATCH::stravaAccessToken')
           setStravaAccessToken(null)
-        })) as Activity[]
+          return []
+        })
+      setFetching(false)
       setActivityList(responseData.filter((a) => a.type === 'Run'))
     },
     []
@@ -158,6 +163,11 @@ function LogCard(props: LogCardProps) {
           activityList={activityList}
           onSelect={onSelect}
         />
+        {fetching && (
+          <div className={styles.buttonContainer}>
+            <Spinner size="sm" />
+          </div>
+        )}
         {!stravaAccessToken && (
           <div className={styles.buttonContainer}>
             <Popover

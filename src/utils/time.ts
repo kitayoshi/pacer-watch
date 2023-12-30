@@ -32,3 +32,7 @@ export function formatHHMMSSsss(time: Second) {
   const numberText = `${hourString}:${minuteString}:${secondString}.${millisecondString}`
   return numberText
 }
+
+export function getYearList(startYear: number, length: number) {
+  return Array.from({ length }, (_, i) => i + startYear - length + 1).reverse()
+}

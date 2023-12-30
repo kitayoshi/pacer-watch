@@ -1,6 +1,14 @@
 import { useMemo } from 'react'
 import cx from 'classnames'
-import { format, getMonth, getYear, isSameDay, setDay, setWeek } from 'date-fns'
+import {
+  format,
+  getMonth,
+  getYear,
+  isSameDay,
+  parseISO,
+  setDay,
+  setWeek,
+} from 'date-fns'
 
 import { Activity } from '@/utils/log'
 
@@ -13,11 +21,11 @@ type DayBlockProps = {
   year: number
   weekday: number
   week: number
-  onHover?: (activity: Activity) => void
+  onSelect?: (activity: Activity) => void
 }
 
 function DayBlock(props: DayBlockProps) {
-  const { quantile, activityList, year, weekday, week, onHover } = props
+  const { quantile, activityList, year, weekday, week, onSelect } = props
   const date = useMemo(() => {
     const date = setDay(
       setWeek(new Date(Number(year), 0, 1), week, { weekStartsOn: 1 }),
@@ -28,8 +36,8 @@ function DayBlock(props: DayBlockProps) {
   }, [year, weekday, week])
   const dateKey = useMemo(() => format(date, 'yyyy-MM-dd'), [date])
   const dayActivityList = useMemo(() => {
-    const dayActivityList = activityList.filter((activity) => {
-      return isSameDay(new Date(activity.startDateLocal), date)
+    const dayActivityList = activityList.filter((a) => {
+      return isSameDay(parseISO(a.startDate), date)
     })
     return dayActivityList
   }, [activityList, date])
@@ -68,7 +76,7 @@ function DayBlock(props: DayBlockProps) {
       data-date-key={dateKey}
       onPointerEnter={() => {
         if (!showDayBlock) return
-        onHover?.(dayActivityList[0])
+        onSelect?.(dayActivityList[0])
       }}
     ></div>
   )

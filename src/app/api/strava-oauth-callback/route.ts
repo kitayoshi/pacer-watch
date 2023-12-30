@@ -5,9 +5,15 @@ import { StravaTokenPayload } from '@/utils/strava'
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code')
+  const error = request.nextUrl.searchParams.get('error')
 
-  if (!code) {
-    return NextResponse.json({ error: 'code is required' }, { status: 401 })
+  if (error || !code) {
+    const redirectUrl = new URL('/', request.nextUrl)
+    redirectUrl.searchParams.append(
+      'set_strava_token',
+      `error:Strava Auth Error (${error || 'no error info'})`
+    )
+    return NextResponse.redirect(redirectUrl)
   }
 
   const url = new URL('/api/v3/oauth/token', 'https://www.strava.com')

@@ -296,7 +296,7 @@ function CardList(props: CardListProps) {
     [showPaceWatch, showCadenceWatch, showLapTable, showLogCard]
   )
 
-  const onLogHover = useCallback((activity: Activity) => {
+  const onLogSelect = useCallback((activity: Activity) => {
     if (!activity) return
     setDistanceTimeCadence((currentDistanceTimeCadence) => {
       const [currentDistance, currentTime, currentCadence] =
@@ -355,7 +355,7 @@ function CardList(props: CardListProps) {
         )}
         {showLapTable && <LapTable pace={pace} />}
 
-        <LogCard show={showLogCard} onHover={onLogHover} />
+        <LogCard show={showLogCard} onSelect={onLogSelect} />
       </div>
       <div className={cx('flex', 'gap-2')}>
         <Button

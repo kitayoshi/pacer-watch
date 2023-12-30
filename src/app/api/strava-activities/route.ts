@@ -30,11 +30,12 @@ export async function GET(request: NextRequest) {
     before: getUnixTime(new Date()),
     after: getUnixTime(new Date(2023, 0, 1, 0, 0, 0)),
   })
+
   const activityList = trimStravaActivityList(stravaActivityList)
   if (refresh) {
     await kv.del(athleteId)
   }
-  await kv.set(athleteId, activityList)
+  await kv.set(athleteId, trimStravaActivityList(stravaActivityList))
 
   return NextResponse.json(activityList)
 }

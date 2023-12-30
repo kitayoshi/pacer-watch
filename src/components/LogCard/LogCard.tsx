@@ -1,11 +1,13 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
+import { isSameYear, parseISO } from 'date-fns'
 import cx from 'classnames'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Card } from '@nextui-org/card'
 import { Select, SelectItem } from '@nextui-org/select'
 import { Button } from '@nextui-org/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@nextui-org/popover'
 
 import SyncImage from '@material-design-icons/svg/filled/sync.svg'
 
@@ -14,6 +16,7 @@ import MonthLogTable from '@/components/MonthLogTable'
 
 import { Activity } from '@/utils/log'
 import { formatDistance } from '@/utils/unit'
+import { getYearList } from '@/utils/time'
 
 import styles from './LogCard.module.css'
 
@@ -23,20 +26,26 @@ const STRAVA_ATHLETE_ID_KEY = 'PACER_WATCH::stravaAthleteId'
 type LogCardProps = {
   show?: boolean
   className?: string
-  onHover?: (activity: Activity) => void
+  onSelect?: (activity: Activity) => void
 }
 
 function LogCard(props: LogCardProps) {
-  const { show, className, onHover } = props
+  const { show, className, onSelect } = props
   const searchParams = useSearchParams()
   const router = useRouter()
 
+  const [stravaError, setStravaError] = useState<string | null>(null)
   const [stravaAthleteId, setStravaAthleteId] = useState<number | null>(null)
   const [stravaAccessToken, setStravaAccessToken] = useState<string | null>(
     null
   )
   useEffect(() => {
     const setStravaTokenQuery = searchParams.get('set_strava_token')
+    if (setStravaTokenQuery?.startsWith('error')) {
+      setStravaError(setStravaTokenQuery.split('error:')[1])
+      router.replace('/')
+      return
+    }
     if (setStravaTokenQuery) {
       const [athleteId, accessToken] = setStravaTokenQuery.split('.')
       localStorage.setItem(STRAVA_ATHLETE_ID_KEY, athleteId)
@@ -83,17 +92,11 @@ function LogCard(props: LogCardProps) {
   const [year, setYear] = useState(2023)
   const yearList = useMemo(() => {
     const currentYear = new Date().getFullYear()
-    const yearList = Array.from(
-      { length: 5 },
-      (_, i) => i + currentYear - 5 + 1
-    ).reverse()
-    return yearList
+    return getYearList(currentYear, 1)
   }, [])
 
   const currentYearActivityList = useMemo(() => {
-    return activityList.filter(
-      (a) => a.startDateLocal.slice(0, 4) === String(year)
-    )
+    return activityList.filter((a) => isSameYear(parseISO(a.startDate), year))
   }, [activityList, year])
 
   const totalDistanceText = useMemo(() => {
@@ -151,12 +154,23 @@ function LogCard(props: LogCardProps) {
           className={styles.monthLogTable}
           year={year}
           activityList={activityList}
-          onHover={onHover}
+          onSelect={onSelect}
         />
       )}
       {!stravaAccessToken && (
         <div className={styles.buttonContainer}>
-          <ConnectStravaButton />
+          <Popover
+            isOpen={Boolean(stravaError)}
+            onOpenChange={() => setStravaError(null)}
+            triggerScaleOnOpen={false}
+          >
+            <PopoverTrigger>
+              <div>
+                <ConnectStravaButton />
+              </div>
+            </PopoverTrigger>
+            <PopoverContent>{stravaError}</PopoverContent>
+          </Popover>
         </div>
       )}
     </Card>

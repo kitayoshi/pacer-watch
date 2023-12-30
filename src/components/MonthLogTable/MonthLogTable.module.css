@@ -51,13 +51,16 @@
 .dayBlock {
   background: #eee;
   border-radius: 2px;
-  cursor: pointer;
   height: 11px;
   width: 11px;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.2s;
 }
 
-.dayBlock:hover {
+.dayBlockHasActivity {
+  cursor: pointer;
+}
+
+.dayBlockHasActivity:hover {
   transform: scale(1.2);
 }
 
@@ -80,4 +83,26 @@
 
 .dayBlock25 {
   background: #ffe500;
+}
+
+.popoverContainter {
+  align-items: center;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+}
+
+.popoverDate {
+  font-weight: 700;
+}
+
+.popoverActivityDetail {
+  font-size: 12px;
+  cursor: pointer;
+  margin-right: 1em;
+}
+
+.popoverActivityLink {
+  color: #fc5200;
+  font-size: 12px;
 }

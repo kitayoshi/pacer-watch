@@ -8,13 +8,17 @@ import {
   getWeeksInMonth,
   getYear,
   isSameDay,
+  isSameMonth,
+  parseISO,
   setDay,
   setWeek,
   startOfMonth,
 } from 'date-fns'
+import { Popover, PopoverContent, PopoverTrigger } from '@nextui-org/popover'
 
 import { Activity } from '@/utils/log'
-import { formatDistance } from '@/utils/unit'
+import { formatDistance, formatPace, formatTime } from '@/utils/unit'
+import { Link } from '@nextui-org/link'
 
 import styles from './MonthLogTable.module.css'
 
@@ -25,11 +29,11 @@ type DayBlockProps = {
   month: number
   weekday: number
   week: number
-  onHover?: (activity: Activity) => void
+  onSelect?: (activity: Activity) => void
 }
 
 function DayBlock(props: DayBlockProps) {
-  const { quantile, activityList, year, month, weekday, week, onHover } = props
+  const { quantile, activityList, year, month, weekday, week, onSelect } = props
   const date = useMemo(() => {
     const date = setDay(
       setWeek(new Date(Number(year), 0, 1), week, { weekStartsOn: 1 }),
@@ -40,8 +44,8 @@ function DayBlock(props: DayBlockProps) {
   }, [year, weekday, week])
   const dateKey = useMemo(() => format(date, 'yyyy-MM-dd'), [date])
   const dayActivityList = useMemo(() => {
-    const dayActivityList = activityList.filter((activity) => {
-      return isSameDay(new Date(activity.startDateLocal), date)
+    const dayActivityList = activityList.filter((a) => {
+      return isSameDay(parseISO(a.startDate), date)
     })
     return dayActivityList
   }, [activityList, date])
@@ -66,25 +70,58 @@ function DayBlock(props: DayBlockProps) {
   }, [date, year, month])
 
   return (
-    <div
-      className={cx(styles.dayBlock, {
-        [styles.dayBlockEmpty]: !showDayBlock,
-        [styles.dayBlock100]: showDayBlock && distancePreset === 100,
-        [styles.dayBlock75]: showDayBlock && distancePreset === 75,
-        [styles.dayBlock50]: showDayBlock && distancePreset === 50,
-        [styles.dayBlock25]: showDayBlock && distancePreset === 25,
-      })}
-      date-year={year}
-      date-month={month}
-      date-weekday={weekday}
-      date-week={week}
-      data-date-value={distance}
-      data-date-key={dateKey}
-      onPointerEnter={() => {
-        if (!showDayBlock) return
-        onHover?.(dayActivityList[0])
-      }}
-    ></div>
+    <Popover>
+      <PopoverTrigger>
+        <div
+          className={cx(styles.dayBlock, {
+            [styles.dayBlockEmpty]: !showDayBlock,
+            [styles.dayBlockHasActivity]:
+              showDayBlock && dayActivityList.length,
+            [styles.dayBlock100]: showDayBlock && distancePreset === 100,
+            [styles.dayBlock75]: showDayBlock && distancePreset === 75,
+            [styles.dayBlock50]: showDayBlock && distancePreset === 50,
+            [styles.dayBlock25]: showDayBlock && distancePreset === 25,
+          })}
+          date-year={year}
+          date-month={month}
+          date-weekday={weekday}
+          date-week={week}
+          data-date-value={distance}
+          data-date-key={dateKey}
+        ></div>
+      </PopoverTrigger>
+      <PopoverContent>
+        <div className={styles.popoverContainter}>
+          <div className={styles.popoverDate}>{dateKey}</div>
+          {dayActivityList.map((activity) => {
+            const pace = activity.movingTime / activity.distance
+            const activityLink = `https://www.strava.com/activities/${activity.id}`
+
+            return (
+              <div key={activity.id} className={styles.popoverActivity}>
+                <Link
+                  className={styles.popoverActivityDetail}
+                  onClick={() => {
+                    onSelect?.(activity)
+                  }}
+                >
+                  {formatDistance(activity.distance)} | {formatPace(pace)} |{' '}
+                  {formatTime(activity.movingTime)}
+                </Link>
+                <Link
+                  className={styles.popoverActivityLink}
+                  isExternal
+                  showAnchorIcon
+                  href={activityLink}
+                >
+                  DETAIL
+                </Link>
+              </div>
+            )
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
   )
 }
 
@@ -92,7 +129,7 @@ type MonthLogTableProps = {
   className?: string
   year: number // yyyy
   activityList: Activity[]
-  onHover?: (activity: Activity) => void
+  onSelect?: (activity: Activity) => void
 }
 
 const weekdayList = [1, 2, 3, 4, 5, 6, 0]
@@ -104,12 +141,12 @@ const monthList = [
 ]
 
 function MonthLogTable(props: MonthLogTableProps) {
-  const { className, year, activityList, onHover } = props
+  const { className, year, activityList, onSelect } = props
 
   const getMonthDistanceText = useCallback(
     (month: number) => {
-      const monthActivityList = activityList.filter((activity) => {
-        return getMonth(new Date(activity.startDateLocal)) === month
+      const monthActivityList = activityList.filter((a) => {
+        return isSameMonth(getMonth(parseISO(a.startDate)), month)
       })
       const distance = monthActivityList.reduce(
         (acc, cur) => acc + cur.distance,
@@ -171,7 +208,7 @@ function MonthLogTable(props: MonthLogTableProps) {
                                   month={month}
                                   weekday={weekday}
                                   week={week}
-                                  onHover={onHover}
+                                  onSelect={onSelect}
                                 />
                               )
                             })}

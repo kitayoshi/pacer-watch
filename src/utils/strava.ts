@@ -118,7 +118,7 @@ export async function fetchStravaActivitesAll(
 
   while (true) {
     const stravaActivityList = await fetchStravaActivites({ ...options, page })
-    if (stravaActivityList.length === 0) break
+    if (stravaActivityList.length < (options.perPage || 30)) break
     result.push(...stravaActivityList)
     if (result.length > MAX_RESULT) break
     page++

@@ -299,15 +299,15 @@ function CardList(props: CardListProps) {
   const onLogSelect = useCallback((activity: Activity) => {
     if (!activity) return
     setDistanceTimeCadence((currentDistanceTimeCadence) => {
-      const [currentDistance, currentTime, currentCadence] =
-        currentDistanceTimeCadence
-      const currentPace = currentTime / currentDistance
-      const currentStride = getStride(currentPace, currentCadence)
+      const [, , currentCadence] = currentDistanceTimeCadence
 
       const nextDistance = activity.distance
       const nextTime = activity.movingTime
-      const nextPace = nextTime / nextDistance
-      const nextCadence = getCadence(nextPace, currentStride)
+
+      let nextCadence = currentCadence
+      if (activity.averageCadence) {
+        nextCadence = activity.averageCadence * 2
+      }
 
       return [nextDistance, nextTime, nextCadence]
     })

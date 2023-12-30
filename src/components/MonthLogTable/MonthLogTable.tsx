@@ -8,7 +8,6 @@ import {
   getWeeksInMonth,
   getYear,
   isSameDay,
-  isSameMonth,
   parseISO,
   setDay,
   setWeek,
@@ -146,7 +145,7 @@ function MonthLogTable(props: MonthLogTableProps) {
   const getMonthDistanceText = useCallback(
     (month: number) => {
       const monthActivityList = activityList.filter((a) => {
-        return isSameMonth(getMonth(parseISO(a.startDate)), month)
+        return getMonth(parseISO(a.startDate)) === month
       })
       const distance = monthActivityList.reduce(
         (acc, cur) => acc + cur.distance,

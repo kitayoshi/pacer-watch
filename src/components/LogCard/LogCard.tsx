@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { isSameYear, parseISO } from 'date-fns'
+import { getYear, parseISO } from 'date-fns'
 import cx from 'classnames'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Card } from '@nextui-org/card'
@@ -101,7 +101,7 @@ function LogCard(props: LogCardProps) {
   }, [])
 
   const currentYearActivityList = useMemo(() => {
-    return activityList.filter((a) => isSameYear(parseISO(a.startDate), year))
+    return activityList.filter((a) => getYear(parseISO(a.startDate)) === year)
   }, [activityList, year])
 
   const totalDistanceText = useMemo(() => {

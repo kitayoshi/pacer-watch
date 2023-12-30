@@ -114,19 +114,21 @@ function LogCard(props: LogCardProps) {
       <div className={styles.navbar}>
         <div className={styles.navbarHeader}>TRAINING LOG</div>
       </div>
-      <Button
-        className={styles.toolButton}
-        isIconOnly
-        size="sm"
-        onClick={() => {
-          if (!stravaAthleteId || !stravaAccessToken) return
-          fetchData(stravaAthleteId, stravaAccessToken, true)
-        }}
-        variant="light"
-        radius="full"
-      >
-        <SyncImage className={styles.icon} fill="currentColor" />
-      </Button>
+      {stravaAccessToken && (
+        <Button
+          className={styles.toolButton}
+          isIconOnly
+          size="sm"
+          onClick={() => {
+            if (!stravaAthleteId || !stravaAccessToken) return
+            fetchData(stravaAthleteId, stravaAccessToken, true)
+          }}
+          variant="light"
+          radius="full"
+        >
+          <SyncImage className={styles.icon} fill="currentColor" />
+        </Button>
+      )}
       <div className={styles.yearStat}>
         <Select
           className={styles.yearSelect}
@@ -149,30 +151,30 @@ function LogCard(props: LogCardProps) {
           className={styles.yearTotal}
         >{`${totalDistanceText} / ${currentYearActivityList.length}runs`}</div>
       </div>
-      {stravaAccessToken && (
+      <div className={styles.content}>
         <MonthLogTable
           className={styles.monthLogTable}
           year={year}
           activityList={activityList}
           onSelect={onSelect}
         />
-      )}
-      {!stravaAccessToken && (
-        <div className={styles.buttonContainer}>
-          <Popover
-            isOpen={Boolean(stravaError)}
-            onOpenChange={() => setStravaError(null)}
-            triggerScaleOnOpen={false}
-          >
-            <PopoverTrigger>
-              <div>
-                <ConnectStravaButton />
-              </div>
-            </PopoverTrigger>
-            <PopoverContent>{stravaError}</PopoverContent>
-          </Popover>
-        </div>
-      )}
+        {!stravaAccessToken && (
+          <div className={styles.buttonContainer}>
+            <Popover
+              isOpen={Boolean(stravaError)}
+              onOpenChange={() => setStravaError(null)}
+              triggerScaleOnOpen={false}
+            >
+              <PopoverTrigger>
+                <div>
+                  <ConnectStravaButton />
+                </div>
+              </PopoverTrigger>
+              <PopoverContent>{stravaError}</PopoverContent>
+            </Popover>
+          </div>
+        )}
+      </div>
     </Card>
   )
 }

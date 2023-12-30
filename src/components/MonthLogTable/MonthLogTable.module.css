@@ -29,6 +29,7 @@
 }
 
 .monthTitle {
+  color: #ddd;
   text-transform: uppercase;
 }
 
@@ -38,23 +39,31 @@
 
 .weekList {
   display: flex;
-  gap: 2px;
+  gap: 3px;
 }
 
 .weekListContainer {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .dayBlock {
   background: #eee;
-  height: 12px;
-  width: 12px;
+  border-radius: 2px;
+  cursor: pointer;
+  height: 11px;
+  width: 11px;
+  transition: all 0.2s ease-in-out;
+}
+
+.dayBlock:hover {
+  transform: scale(1.2);
 }
 
 .dayBlockEmpty {
   background: none;
+  cursor: default;
 }
 
 .dayBlock100 {

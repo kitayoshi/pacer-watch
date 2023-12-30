@@ -5,11 +5,15 @@ import cx from 'classnames'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Card } from '@nextui-org/card'
 import { Select, SelectItem } from '@nextui-org/select'
+import { Button } from '@nextui-org/button'
+
+import SyncImage from '@material-design-icons/svg/filled/sync.svg'
 
 import ConnectStravaButton from '@/components/ConnectStravaButton'
 import MonthLogTable from '@/components/MonthLogTable'
 
-import { LogMapData } from '@/utils/log'
+import { Activity } from '@/utils/log'
+import { formatDistance } from '@/utils/unit'
 
 import styles from './LogCard.module.css'
 
@@ -19,10 +23,11 @@ const STRAVA_ATHLETE_ID_KEY = 'PACER_WATCH::stravaAthleteId'
 type LogCardProps = {
   show?: boolean
   className?: string
+  onHover?: (activity: Activity) => void
 }
 
 function LogCard(props: LogCardProps) {
-  const { show, className } = props
+  const { show, className, onHover } = props
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -45,13 +50,17 @@ function LogCard(props: LogCardProps) {
     setStravaAccessToken(storageToken)
   }, [router, searchParams])
 
-  const [logMapData, setLogMapData] = useState<LogMapData>({
-    logMap: {},
-    quantile: [0, 0, 0, 0, 0],
-  })
+  const [activityList, setActivityList] = useState<Activity[]>([])
   const fetchData = useCallback(
-    async (stravaAthleteId: number, stravaAccessToken: string) => {
-      const responseData = (await fetch('/api/strava-activities', {
+    async (
+      stravaAthleteId: number,
+      stravaAccessToken: string,
+      refresh?: boolean
+    ) => {
+      const url = new URL('/api/strava-activities', window.location.origin)
+      if (refresh) url.searchParams.set('refresh', '1')
+
+      const responseData = (await fetch(url, {
         headers: {
           ['x-strava-athlete-id']: String(stravaAthleteId),
           ['x-strava-access-token']: stravaAccessToken,
@@ -61,8 +70,8 @@ function LogCard(props: LogCardProps) {
         .catch(() => {
           localStorage.removeItem('PACER_WATCH::stravaAccessToken')
           setStravaAccessToken(null)
-        })) as LogMapData
-      setLogMapData(responseData)
+        })) as Activity[]
+      setActivityList(responseData.filter((a) => a.type === 'Run'))
     },
     []
   )
@@ -81,13 +90,40 @@ function LogCard(props: LogCardProps) {
     return yearList
   }, [])
 
+  const currentYearActivityList = useMemo(() => {
+    return activityList.filter(
+      (a) => a.startDateLocal.slice(0, 4) === String(year)
+    )
+  }, [activityList, year])
+
+  const totalDistanceText = useMemo(() => {
+    const totalDistance = currentYearActivityList.reduce(
+      (acc, cur) => acc + cur.distance,
+      0
+    )
+    return formatDistance(totalDistance)
+  }, [currentYearActivityList])
+
   if (!show) return null
 
   return (
     <Card className={cx(styles.container, className)}>
       <div className={styles.navbar}>
-        <div className={styles.navbarHeader}>YEAR JOURNAL</div>
+        <div className={styles.navbarHeader}>TRAINING LOG</div>
       </div>
+      <Button
+        className={styles.toolButton}
+        isIconOnly
+        size="sm"
+        onClick={() => {
+          if (!stravaAthleteId || !stravaAccessToken) return
+          fetchData(stravaAthleteId, stravaAccessToken, true)
+        }}
+        variant="light"
+        radius="full"
+      >
+        <SyncImage className={styles.icon} fill="currentColor" />
+      </Button>
       <div className={styles.yearStat}>
         <Select
           className={styles.yearSelect}
@@ -106,13 +142,16 @@ function LogCard(props: LogCardProps) {
             </SelectItem>
           ))}
         </Select>
-        <div className={styles.yearTotal}>{'1234km\n200runs'}</div>
+        <div
+          className={styles.yearTotal}
+        >{`${totalDistanceText} / ${currentYearActivityList.length}runs`}</div>
       </div>
       {stravaAccessToken && (
         <MonthLogTable
           className={styles.monthLogTable}
           year={year}
-          logMapData={logMapData}
+          activityList={activityList}
+          onHover={onHover}
         />
       )}
       {!stravaAccessToken && (

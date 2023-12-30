@@ -4,7 +4,7 @@ import { kv } from '@vercel/kv'
 import { getUnixTime } from 'date-fns'
 
 import { fetchStravaActivitesAll, fetchStravaAthlete } from '@/utils/strava'
-import { LogMapData, convertStravaActivitiyList } from '@/utils/log'
+import { Activity, trimStravaActivityList } from '@/utils/log'
 
 export async function GET(request: NextRequest) {
   const accessToken = request.headers.get('x-strava-access-token')
@@ -19,8 +19,12 @@ export async function GET(request: NextRequest) {
 
   const refresh = request.nextUrl.searchParams.get('refresh')
 
+  if (refresh) {
+    await kv.del(athleteId)
+  }
+
   if (!refresh) {
-    const kvLogMapData = await kv.get<LogMapData>(athleteId)
+    const kvLogMapData = await kv.get<Activity[]>(athleteId)
     if (kvLogMapData) return NextResponse.json(kvLogMapData)
   }
 
@@ -30,8 +34,8 @@ export async function GET(request: NextRequest) {
     before: getUnixTime(new Date()),
     after: getUnixTime(new Date(2023, 0, 1, 0, 0, 0)),
   })
-  const logMapData = convertStravaActivitiyList(stravaActivityList)
-  await kv.set(athleteId, logMapData)
+  const activityList = trimStravaActivityList(stravaActivityList)
+  await kv.set(athleteId, activityList)
 
-  return NextResponse.json(logMapData)
+  return NextResponse.json(activityList)
 }

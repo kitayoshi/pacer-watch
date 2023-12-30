@@ -22,6 +22,7 @@ import {
   getPace,
   getStride,
 } from '@/components/Watch/cadenceUtils'
+import { Activity } from '@/utils/log'
 
 import styles from './CardList.module.css'
 
@@ -295,6 +296,23 @@ function CardList(props: CardListProps) {
     [showPaceWatch, showCadenceWatch, showLapTable, showLogCard]
   )
 
+  const onLogHover = useCallback((activity: Activity) => {
+    if (!activity) return
+    setDistanceTimeCadence((currentDistanceTimeCadence) => {
+      const [currentDistance, currentTime, currentCadence] =
+        currentDistanceTimeCadence
+      const currentPace = currentTime / currentDistance
+      const currentStride = getStride(currentPace, currentCadence)
+
+      const nextDistance = activity.distance
+      const nextTime = activity.movingTime
+      const nextPace = nextTime / nextDistance
+      const nextCadence = getCadence(nextPace, currentStride)
+
+      return [nextDistance, nextTime, nextCadence]
+    })
+  }, [])
+
   return (
     <div
       className={cx(
@@ -337,7 +355,7 @@ function CardList(props: CardListProps) {
         )}
         {showLapTable && <LapTable pace={pace} />}
 
-        <LogCard show={showLogCard} />
+        <LogCard show={showLogCard} onHover={onLogHover} />
       </div>
       <div className={cx('flex', 'gap-2')}>
         <Button

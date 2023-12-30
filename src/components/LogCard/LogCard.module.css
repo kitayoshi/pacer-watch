@@ -17,6 +17,13 @@
   position: relative;
 }
 
+.toolButton {
+  color: #999;
+  position: absolute;
+  right: 12px;
+  top: 18px;
+}
+
 .yearStat {
   align-items: center;
   display: flex;

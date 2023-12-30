@@ -1,38 +1,35 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import cx from 'classnames'
+import { quantileSeq } from 'mathjs'
 import {
   format,
-  getDay,
-  getDaysInMonth,
   getMonth,
   getWeek,
   getWeeksInMonth,
   getYear,
+  isSameDay,
   setDay,
   setWeek,
   startOfMonth,
 } from 'date-fns'
 
-import { LogMapData } from '@/utils/log'
+import { Activity } from '@/utils/log'
+import { formatDistance } from '@/utils/unit'
 
 import styles from './MonthLogTable.module.css'
 
 type DayBlockProps = {
-  logMapData: LogMapData
+  quantile: [number, number, number, number, number]
+  activityList: Activity[]
   year: number
   month: number
   weekday: number
   week: number
+  onHover?: (activity: Activity) => void
 }
 
 function DayBlock(props: DayBlockProps) {
-  const {
-    logMapData: { logMap, quantile },
-    year,
-    month,
-    weekday,
-    week,
-  } = props
+  const { quantile, activityList, year, month, weekday, week, onHover } = props
   const date = useMemo(() => {
     const date = setDay(
       setWeek(new Date(Number(year), 0, 1), week, { weekStartsOn: 1 }),
@@ -42,12 +39,17 @@ function DayBlock(props: DayBlockProps) {
     return date
   }, [year, weekday, week])
   const dateKey = useMemo(() => format(date, 'yyyy-MM-dd'), [date])
+  const dayActivityList = useMemo(() => {
+    const dayActivityList = activityList.filter((activity) => {
+      return isSameDay(new Date(activity.startDateLocal), date)
+    })
+    return dayActivityList
+  }, [activityList, date])
 
   const distance = useMemo(() => {
-    const logData = (logMap[dateKey] || []).filter((log) => log.type === 'Run')
-    const distance = logData.reduce((acc, cur) => acc + cur.distance, 0)
+    const distance = dayActivityList.reduce((acc, cur) => acc + cur.distance, 0)
     return distance
-  }, [logMap, dateKey])
+  }, [dayActivityList])
 
   const distancePreset = useMemo(() => {
     if (!distance) return null
@@ -78,6 +80,10 @@ function DayBlock(props: DayBlockProps) {
       date-week={week}
       data-date-value={distance}
       data-date-key={dateKey}
+      onPointerEnter={() => {
+        if (!showDayBlock) return
+        onHover?.(dayActivityList[0])
+      }}
     ></div>
   )
 }
@@ -85,7 +91,8 @@ function DayBlock(props: DayBlockProps) {
 type MonthLogTableProps = {
   className?: string
   year: number // yyyy
-  logMapData: LogMapData
+  activityList: Activity[]
+  onHover?: (activity: Activity) => void
 }
 
 const weekdayList = [1, 2, 3, 4, 5, 6, 0]
@@ -97,7 +104,30 @@ const monthList = [
 ]
 
 function MonthLogTable(props: MonthLogTableProps) {
-  const { className, year, logMapData } = props
+  const { className, year, activityList, onHover } = props
+
+  const getMonthDistanceText = useCallback(
+    (month: number) => {
+      const monthActivityList = activityList.filter((activity) => {
+        return getMonth(new Date(activity.startDateLocal)) === month
+      })
+      const distance = monthActivityList.reduce(
+        (acc, cur) => acc + cur.distance,
+        0
+      )
+      return formatDistance(distance)
+    },
+    [activityList]
+  )
+
+  const quantile = useMemo(() => {
+    return quantileSeq(
+      activityList.length
+        ? activityList.map((activity) => activity.distance)
+        : [0],
+      [0, 0.25, 0.5, 0.75, 1]
+    ) as [number, number, number, number, number]
+  }, [activityList])
 
   return (
     <div className={cx(styles.container, className)}>
@@ -123,7 +153,9 @@ function MonthLogTable(props: MonthLogTableProps) {
                       <div className={styles.monthTitle}>
                         {format(new Date(year, month), 'MMM')}
                       </div>
-                      <div className={styles.monthCount}>123km</div>
+                      <div className={styles.monthCount}>
+                        {getMonthDistanceText(month)}
+                      </div>
                     </div>
                     <div className={styles.weekListContainer}>
                       {weekList.map((week) => {
@@ -133,11 +165,13 @@ function MonthLogTable(props: MonthLogTableProps) {
                               return (
                                 <DayBlock
                                   key={weekday}
-                                  logMapData={logMapData}
+                                  activityList={activityList}
+                                  quantile={quantile}
                                   year={year}
                                   month={month}
                                   weekday={weekday}
                                   week={week}
+                                  onHover={onHover}
                                 />
                               )
                             })}

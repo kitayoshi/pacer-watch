@@ -1,35 +1,44 @@
 import { useMemo } from 'react'
 import cx from 'classnames'
-import { format, getYear, setDay, setWeek } from 'date-fns'
+import { format, getMonth, getYear, isSameDay, setDay, setWeek } from 'date-fns'
 
-import { LogMapData } from '@/utils/log'
+import { Activity } from '@/utils/log'
 
 import styles from './YearLogTable.module.css'
+import { quantileSeq } from 'mathjs'
 
 type DayBlockProps = {
-  logMapData: LogMapData
+  quantile: [number, number, number, number, number]
+  activityList: Activity[]
   year: number
   weekday: number
   week: number
+  onHover?: (activity: Activity) => void
 }
 
 function DayBlock(props: DayBlockProps) {
-  const {
-    logMapData: { logMap, quantile },
-    year,
-    weekday,
-    week,
-  } = props
+  const { quantile, activityList, year, weekday, week, onHover } = props
   const date = useMemo(() => {
-    const date = setDay(setWeek(new Date(Number(year), 0, 1), week), weekday)
+    const date = setDay(
+      setWeek(new Date(Number(year), 0, 1), week, { weekStartsOn: 1 }),
+      weekday,
+      { weekStartsOn: 1 }
+    )
     return date
   }, [year, weekday, week])
   const dateKey = useMemo(() => format(date, 'yyyy-MM-dd'), [date])
+  const dayActivityList = useMemo(() => {
+    const dayActivityList = activityList.filter((activity) => {
+      return isSameDay(new Date(activity.startDateLocal), date)
+    })
+    return dayActivityList
+  }, [activityList, date])
+
   const distance = useMemo(() => {
-    const logData = (logMap[dateKey] || []).filter((log) => log.type === 'Run')
-    const distance = logData.reduce((acc, cur) => acc + cur.distance, 0)
+    const distance = dayActivityList.reduce((acc, cur) => acc + cur.distance, 0)
     return distance
-  }, [logMap, dateKey])
+  }, [dayActivityList])
+
   const distancePreset = useMemo(() => {
     if (!distance) return null
     if (distance >= quantile[3]) return 100
@@ -38,31 +47,52 @@ function DayBlock(props: DayBlockProps) {
     if (distance >= 0) return 25
   }, [distance, quantile])
 
+  const showDayBlock = useMemo(() => {
+    if (getYear(date) !== year) return false
+    return true
+  }, [date, year])
+
   return (
     <div
       className={cx(styles.dayBlock, {
-        [styles.dayBlockEmpty]: getYear(date) !== year,
-        [styles.dayBlock100]: distancePreset === 100,
-        [styles.dayBlock75]: distancePreset === 75,
-        [styles.dayBlock50]: distancePreset === 50,
-        [styles.dayBlock25]: distancePreset === 25,
+        [styles.dayBlockEmpty]: !showDayBlock,
+        [styles.dayBlock100]: showDayBlock && distancePreset === 100,
+        [styles.dayBlock75]: showDayBlock && distancePreset === 75,
+        [styles.dayBlock50]: showDayBlock && distancePreset === 50,
+        [styles.dayBlock25]: showDayBlock && distancePreset === 25,
       })}
+      date-year={year}
+      date-weekday={weekday}
+      date-week={week}
       data-date-value={distance}
       data-date-key={dateKey}
+      onPointerEnter={() => {
+        if (!showDayBlock) return
+        onHover?.(dayActivityList[0])
+      }}
     ></div>
   )
 }
 
 type YearLogTableProps = {
   year: number // yyyy
-  logMapData: LogMapData
+  activityList: Activity[]
 }
 
 const weekdayList = [0, 1, 2, 3, 4, 5, 6]
 const weekList = Array.from({ length: 53 }, (_, i) => i + 1)
 
 function YearLogTable(props: YearLogTableProps) {
-  const { year, logMapData } = props
+  const { year, activityList } = props
+
+  const quantile = useMemo(() => {
+    return quantileSeq(
+      activityList.length
+        ? activityList.map((activity) => activity.distance)
+        : [0],
+      [0, 0.25, 0.5, 0.75, 1]
+    ) as [number, number, number, number, number]
+  }, [activityList])
 
   return (
     <div className={styles.container}>
@@ -75,7 +105,8 @@ function YearLogTable(props: YearLogTableProps) {
                 return (
                   <DayBlock
                     key={week}
-                    logMapData={logMapData}
+                    activityList={activityList}
+                    quantile={quantile}
                     year={year}
                     weekday={weekday}
                     week={week}

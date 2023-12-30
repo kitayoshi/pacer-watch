@@ -19,10 +19,6 @@ export async function GET(request: NextRequest) {
 
   const refresh = request.nextUrl.searchParams.get('refresh')
 
-  if (refresh) {
-    await kv.del(athleteId)
-  }
-
   if (!refresh) {
     const kvLogMapData = await kv.get<Activity[]>(athleteId)
     if (kvLogMapData) return NextResponse.json(kvLogMapData)
@@ -35,6 +31,9 @@ export async function GET(request: NextRequest) {
     after: getUnixTime(new Date(2023, 0, 1, 0, 0, 0)),
   })
   const activityList = trimStravaActivityList(stravaActivityList)
+  if (refresh) {
+    await kv.del(athleteId)
+  }
   await kv.set(athleteId, activityList)
 
   return NextResponse.json(activityList)

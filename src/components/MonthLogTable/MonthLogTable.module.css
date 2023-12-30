@@ -1,0 +1,74 @@
+.container {
+  align-items: stretch;
+  display: flex;
+  flex-direction: column;
+}
+
+.weekdayListContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.columnMonthList {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.monthBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.monthStat {
+  align-items: center;
+  font-size: 12px;
+  color: #333;
+  display: flex;
+}
+
+.monthTitle {
+  text-transform: uppercase;
+}
+
+.monthCount {
+  margin-left: auto;
+}
+
+.weekList {
+  display: flex;
+  gap: 2px;
+}
+
+.weekListContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dayBlock {
+  background: #eee;
+  height: 12px;
+  width: 12px;
+}
+
+.dayBlockEmpty {
+  background: none;
+}
+
+.dayBlock100 {
+  background: #fc5200;
+}
+
+.dayBlock75 {
+  background: #ff8c00;
+}
+
+.dayBlock50 {
+  background: #ffbf00;
+}
+
+.dayBlock25 {
+  background: #ffe500;
+}

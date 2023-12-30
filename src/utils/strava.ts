@@ -1,4 +1,6 @@
-type StravaAthlete = {}
+type StravaAthlete = {
+  id: number
+}
 
 export type StravaTokenPayload = {
   token_type: string // "Bearer"
@@ -79,4 +81,62 @@ export type StravaActivity = {
   total_photo_count: number // 1
   has_kudoed: boolean
   suffer_score: number // 157
+}
+
+type FetchStravaActivitesOptions = {
+  accessToken: string
+  page?: number
+  perPage?: number
+  before?: number
+  after?: number
+}
+
+export async function fetchStravaActivites(
+  options: FetchStravaActivitesOptions
+) {
+  const { accessToken, page, perPage, before, after } = options
+  const url = new URL('/api/v3/athlete/activities', 'https://www.strava.com')
+  if (page) url.searchParams.set('page', String(page))
+  if (perPage) url.searchParams.set('per_page', String(perPage))
+  if (before) url.searchParams.set('before', String(before))
+  if (after) url.searchParams.set('after', String(after))
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+  if (!res.ok) return Promise.reject()
+  const stravaActivityList = (await res.json()) as StravaActivity[]
+  return stravaActivityList
+}
+
+const MAX_RESULT = 800
+
+export async function fetchStravaActivitesAll(
+  options: Omit<FetchStravaActivitesOptions, 'page'>
+) {
+  const result: StravaActivity[] = []
+  let page = 1
+
+  while (true) {
+    const stravaActivityList = await fetchStravaActivites({ ...options, page })
+    if (stravaActivityList.length === 0) break
+    result.push(...stravaActivityList)
+    if (result.length > MAX_RESULT) break
+    page++
+  }
+  return result
+}
+
+type FetchStravaAthleteOptions = {
+  accessToken: string
+}
+
+export async function fetchStravaAthlete(options: FetchStravaAthleteOptions) {
+  const { accessToken } = options
+  const url = new URL('/api/v3/athlete', 'https://www.strava.com')
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+  if (!res.ok) return Promise.reject()
+  const stravaAthlete = (await res.json()) as StravaAthlete
+  return stravaAthlete
 }

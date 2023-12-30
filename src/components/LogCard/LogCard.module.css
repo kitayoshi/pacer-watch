@@ -17,9 +17,29 @@
   position: relative;
 }
 
+.yearStat {
+  align-items: center;
+  display: flex;
+  margin-top: 11px;
+}
+
+.yearSelect {
+  width: 90px;
+}
+
+.yearTotal {
+  margin-left: auto;
+  font-size: 14px;
+  color: #333;
+}
+
 .buttonContainer {
   align-items: center;
   display: flex;
   flex-grow: 1;
   justify-content: center;
+}
+
+.monthLogTable {
+  margin-top: 10px;
 }

@@ -30,7 +30,11 @@ export async function GET(request: NextRequest) {
   if (!res.ok) return NextResponse.error()
   const data = (await res.json()) as StravaTokenPayload
   const accessToken = data.access_token
+  const athleteId = data.athlete.id
   const redirectUrl = new URL('/', request.nextUrl)
-  redirectUrl.searchParams.append('set_strava_access_token', accessToken)
+  redirectUrl.searchParams.append(
+    'set_strava_token',
+    [athleteId, accessToken].join('.')
+  )
   return NextResponse.redirect(redirectUrl)
 }

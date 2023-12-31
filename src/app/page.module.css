@@ -37,10 +37,17 @@
   color: #333;
 }
 
+.linkContainer {
+  align-items: center;
+  display: flex;
+  font-size: 14px;
+  gap: 0.25em;
+  margin-top: 8px;
+}
+
 .link {
   font-size: 14px;
   color: currentColor;
-  margin-top: 8px;
 }
 
 .link:hover {

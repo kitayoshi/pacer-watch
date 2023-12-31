@@ -37,9 +37,9 @@ function LogCard(props: LogCardProps) {
 
   const [stravaError, setStravaError] = useState<string | null>(null)
   const [stravaAthleteId, setStravaAthleteId] = useState<number | null>(null)
-  const [stravaAccessToken, setStravaAccessToken] = useState<string | null>(
-    null
-  )
+  const [stravaAccessToken, setStravaAccessToken] = useState<
+    string | null | undefined
+  >(undefined)
   useEffect(() => {
     const setStravaTokenQuery = searchParams.get('set_strava_token')
     if (setStravaTokenQuery?.startsWith('error')) {
@@ -69,7 +69,7 @@ function LogCard(props: LogCardProps) {
       refresh?: boolean
     ) => {
       setFetching(true)
-      const url = new URL('/api/strava-activities', window.location.origin)
+      const url = new URL('/api/strava-activity-list', window.location.origin)
       if (refresh) url.searchParams.set('refresh', '1')
 
       const responseData: Activity[] = await fetch(url, {
@@ -161,14 +161,29 @@ function LogCard(props: LogCardProps) {
           className={styles.monthLogTable}
           year={year}
           activityList={activityList}
-          onSelect={onSelect}
+          onSelect={async (activity) => {
+            onSelect?.(activity)
+
+            if (!stravaAthleteId || !stravaAccessToken) return
+            const url = new URL('/api/strava-activity', window.location.origin)
+            url.searchParams.set('id', String(activity.id))
+            const responseData: Activity = await fetch(url, {
+              headers: {
+                ['x-strava-athlete-id']: String(stravaAthleteId),
+                ['x-strava-access-token']: stravaAccessToken,
+              },
+            }).then((res) => res.json())
+            setActivityList((prev) =>
+              prev.map((a) => (a.id === activity.id ? responseData : a))
+            )
+          }}
         />
         {fetching && (
           <div className={styles.buttonContainer}>
             <Spinner size="sm" />
           </div>
         )}
-        {!stravaAccessToken && (
+        {stravaAccessToken === null && (
           <div className={styles.buttonContainer}>
             <Popover
               isOpen={Boolean(stravaError)}

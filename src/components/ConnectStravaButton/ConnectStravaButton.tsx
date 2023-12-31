@@ -1,3 +1,5 @@
+'use client'
+
 import { useMemo } from 'react'
 import Image from 'next/image'
 
@@ -6,6 +8,7 @@ import styles from './ConnextStravaButton.module.css'
 
 function ConnectStravaButton() {
   const stravaOauthUrl = useMemo(() => {
+    if (typeof window === 'undefined') return ''
     const url = new URL('/oauth/authorize', 'https://www.strava.com')
 
     if (process.env.NEXT_PUBLIC_STRAVA_CLIENT_ID) {
@@ -22,7 +25,12 @@ function ConnectStravaButton() {
     url.searchParams.append('redirect_uri', redirectUri.toString())
     url.searchParams.append('response_type', 'code')
     url.searchParams.append('approval_prompt', 'auto')
-    url.searchParams.append('scope', 'activity:read_all')
+    url.searchParams.append(
+      'scope',
+      ['read', 'profile:read_all', 'activity:read', 'activity:read_all'].join(
+        ','
+      )
+    )
 
     return url.toString()
   }, [])

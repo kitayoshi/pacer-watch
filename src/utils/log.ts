@@ -1,7 +1,12 @@
-import { StravaActivity } from '@/utils/strava'
+import {
+  StravaActivity,
+  StravaResourceState,
+  StravaBestEffortCamel,
+} from '@/utils/strava'
 
 export type Activity = {
   id: number
+  resourceState: StravaResourceState
   startDate: string
   startDateLocal: string
   type: string
@@ -9,6 +14,7 @@ export type Activity = {
   movingTime: number
   elapsedTime: number
   averageCadence: number
+  bestEfforts?: StravaBestEffortCamel[]
 }
 
 export function trimStravaActivityList(
@@ -17,6 +23,7 @@ export function trimStravaActivityList(
   return stravaActivityList.map((stravaActivity) => {
     return {
       id: stravaActivity.id,
+      resourceState: stravaActivity.resource_state,
       startDate: stravaActivity.start_date,
       startDateLocal: stravaActivity.start_date_local,
       type: stravaActivity.type,

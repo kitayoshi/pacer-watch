@@ -3,8 +3,9 @@ import { NextResponse } from 'next/server'
 import { kv } from '@vercel/kv'
 import { getUnixTime } from 'date-fns'
 
-import { fetchStravaActivitesAll, fetchStravaAthlete } from '@/utils/strava'
+import { fetchStravaActivityListAll, fetchStravaAthlete } from '@/utils/strava'
 import { Activity, trimStravaActivityList } from '@/utils/log'
+import { objectSnakeToCamel } from '@/utils/case'
 
 export async function GET(request: NextRequest) {
   const accessToken = request.headers.get('x-strava-access-token')
@@ -20,11 +21,11 @@ export async function GET(request: NextRequest) {
   const refresh = request.nextUrl.searchParams.get('refresh')
 
   if (!refresh) {
-    const kvLogMapData = await kv.get<Activity[]>(athleteId)
-    if (kvLogMapData) return NextResponse.json(kvLogMapData)
+    const kvActivityList = await kv.get<Activity[]>(athleteId)
+    if (kvActivityList) return NextResponse.json(kvActivityList)
   }
 
-  const stravaActivityList = await fetchStravaActivitesAll({
+  const stravaActivityList = await fetchStravaActivityListAll({
     accessToken,
     perPage: 200,
     before: getUnixTime(new Date()),
@@ -35,7 +36,11 @@ export async function GET(request: NextRequest) {
   if (refresh) {
     await kv.del(athleteId)
   }
-  await kv.set(athleteId, trimStravaActivityList(stravaActivityList))
+  await kv.set(athleteId, activityList)
+
+  if (refresh) {
+    return NextResponse.json(stravaActivityList.map(objectSnakeToCamel))
+  }
 
   return NextResponse.json(activityList)
 }

@@ -14,16 +14,39 @@ import {
   startOfMonth,
 } from 'date-fns'
 import { Popover, PopoverContent, PopoverTrigger } from '@nextui-org/popover'
+import { Link } from '@nextui-org/link'
+import { Divider } from '@nextui-org/divider'
 
 import { Activity } from '@/utils/log'
 import { formatDistance, formatPace, formatTime } from '@/utils/unit'
-import { Link } from '@nextui-org/link'
 
 import styles from './MonthLogTable.module.css'
+import { StravaBestEffortCamel } from '@/utils/strava'
+
+type BestEffort = {
+  name: string
+  displayName: string
+  distance: number
+  elapsedTime: number
+}
+
+const initialBestEffortList: BestEffort[] = [
+  ['5k', '5K'],
+  ['10k', '10K'],
+  ['Half-Marathon', 'HALF'],
+  ['Marathon', 'FULL'],
+].map(([name, displayName]) => ({
+  name,
+  displayName,
+  distance: 0,
+  elapsedTime: 0,
+  activityId: 0,
+}))
 
 type DayBlockProps = {
   quantile: [number, number, number, number, number]
   activityList: Activity[]
+  bestEffortList: (BestEffort & StravaBestEffortCamel)[]
   year: number
   month: number
   weekday: number
@@ -32,7 +55,16 @@ type DayBlockProps = {
 }
 
 function DayBlock(props: DayBlockProps) {
-  const { quantile, activityList, year, month, weekday, week, onSelect } = props
+  const {
+    quantile,
+    activityList,
+    bestEffortList,
+    year,
+    month,
+    weekday,
+    week,
+    onSelect,
+  } = props
   const date = useMemo(() => {
     const date = setDay(
       setWeek(new Date(Number(year), 0, 1), week, { weekStartsOn: 1 }),
@@ -68,6 +100,14 @@ function DayBlock(props: DayBlockProps) {
     return true
   }, [date, year, month])
 
+  const hasBestEffort = useMemo(() => {
+    const hasBestEffort = dayActivityList.reduce((acc, cur) => {
+      if (!cur.bestEfforts) return acc
+      return acc || bestEffortList.some((be) => be.activity.id === cur.id)
+    }, false)
+    return hasBestEffort
+  }, [dayActivityList, bestEffortList])
+
   return (
     <Popover>
       <PopoverTrigger>
@@ -80,6 +120,7 @@ function DayBlock(props: DayBlockProps) {
             [styles.dayBlock75]: showDayBlock && distancePreset === 75,
             [styles.dayBlock50]: showDayBlock && distancePreset === 50,
             [styles.dayBlock25]: showDayBlock && distancePreset === 25,
+            [styles.dayBlockHasBestEffort]: showDayBlock && hasBestEffort,
           })}
           date-year={year}
           date-month={month}
@@ -165,6 +206,29 @@ function MonthLogTable(props: MonthLogTableProps) {
     ) as [number, number, number, number, number]
   }, [activityList])
 
+  const bestEffortList = useMemo(() => {
+    const bestEffortList = activityList.reduce((acc, cur) => {
+      if (!cur.bestEfforts) return acc
+      return acc.map((bestEffort) => {
+        const curBestEffort = cur.bestEfforts?.find(
+          (be) => be.name === bestEffort.name
+        )
+        if (!curBestEffort) return bestEffort
+        if (
+          !bestEffort.distance ||
+          curBestEffort.elapsedTime < bestEffort.elapsedTime
+        ) {
+          return { ...bestEffort, ...curBestEffort }
+        }
+        return bestEffort
+      })
+    }, initialBestEffortList)
+    // HACK: type cast
+    return bestEffortList.filter(
+      (bestEffort) => bestEffort.distance > 0
+    ) as (StravaBestEffortCamel & BestEffort)[]
+  }, [activityList])
+
   return (
     <div className={cx(styles.container, className)}>
       <div className={styles.weekdayListContainer}>
@@ -208,6 +272,7 @@ function MonthLogTable(props: MonthLogTableProps) {
                                   weekday={weekday}
                                   week={week}
                                   onSelect={onSelect}
+                                  bestEffortList={bestEffortList}
                                 />
                               )
                             })}
@@ -222,6 +287,25 @@ function MonthLogTable(props: MonthLogTableProps) {
           )
         })}
       </div>
+      {bestEffortList.length > 0 && (
+        <div>
+          <Divider className="my-4" />
+          {bestEffortList.map((bestEffort) => {
+            return (
+              <div key={bestEffort.name} className={styles.bestListItem}>
+                <div>{bestEffort.displayName}</div>
+                <div className={styles.bestDate}>
+                  {bestEffort.startDateLocal.split('T')[0]}
+                </div>
+                <div>
+                  <strong>{formatTime(bestEffort.elapsedTime)}</strong> @{' '}
+                  {formatPace(bestEffort.elapsedTime / bestEffort.distance)}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

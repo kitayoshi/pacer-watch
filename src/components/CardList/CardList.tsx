@@ -331,7 +331,7 @@ function CardList(props: CardListProps) {
           'flex',
           'flex-col',
           'items-center',
-          'sm:items-stretch',
+          'sm:items-start',
           'sm:flex-row'
         )}
       >

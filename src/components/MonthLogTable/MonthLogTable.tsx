@@ -292,7 +292,17 @@ function MonthLogTable(props: MonthLogTableProps) {
           <Divider className="my-4" />
           {bestEffortList.map((bestEffort) => {
             return (
-              <div key={bestEffort.name} className={styles.bestListItem}>
+              <div
+                key={bestEffort.name}
+                className={styles.bestListItem}
+                onClick={() => {
+                  const bestActivity = activityList.find(
+                    (a) => a.id === bestEffort.activity.id
+                  )
+                  if (!bestActivity) return
+                  onSelect?.(bestActivity)
+                }}
+              >
                 <div>{bestEffort.displayName}</div>
                 <div className={styles.bestDate}>
                   {bestEffort.startDateLocal.split('T')[0]}

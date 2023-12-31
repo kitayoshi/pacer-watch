@@ -165,6 +165,7 @@ function LogCard(props: LogCardProps) {
           onSelect={async (activity) => {
             onSelect?.(activity)
 
+            if (activity.resourceState === 3) return
             if (!stravaAthleteId || !stravaAccessToken) return
             const url = new URL('/api/strava-activity', window.location.origin)
             url.searchParams.set('id', String(activity.id))

@@ -145,8 +145,8 @@ function DayBlock(props: DayBlockProps) {
                     onSelect?.(activity)
                   }}
                 >
-                  {formatDistance(activity.distance)} | {formatPace(pace)} |{' '}
-                  {formatTime(activity.movingTime)}
+                  {formatDistance(activity.distance)} |{' '}
+                  {formatTime(activity.movingTime)} | {formatPace(pace)}
                 </Link>
                 <Link
                   className={styles.popoverActivityLink}

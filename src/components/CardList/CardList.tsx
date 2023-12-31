@@ -240,7 +240,7 @@ function CardList(props: CardListProps) {
     [watchLockHistoryList]
   )
 
-  const [showLogCard, setShowLogCard] = useState(true)
+  const [showLogCard, setShowLogCard] = useState(false)
 
   const toogleWatch = useCallback(
     (cardType: CardType) => {
@@ -285,7 +285,7 @@ function CardList(props: CardListProps) {
           !showPaceWatch &&
           !showCadenceWatch &&
           showLapTable &&
-          showLogCard
+          !showLogCard
         ) {
           return
         }

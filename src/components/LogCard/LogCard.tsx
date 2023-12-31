@@ -180,7 +180,7 @@ function LogCard(props: LogCardProps) {
         />
         {fetching && (
           <div className={styles.buttonContainer}>
-            <Spinner size="sm" />
+            <Spinner size="sm" color="default" />
           </div>
         )}
         {stravaAccessToken === null && (

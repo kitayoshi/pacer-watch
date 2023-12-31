@@ -130,6 +130,7 @@ function LogCard(props: LogCardProps) {
           }}
           variant="light"
           radius="full"
+          disabled={fetching}
         >
           <SyncImage className={styles.icon} fill="currentColor" />
         </Button>

@@ -4,7 +4,7 @@ export const LAW_ROW_LIST = [
   { value: 15000, text: '15K' },
   { value: 20000, text: '20K' },
   { value: 21097.5, text: 'HALF', showLapTime: false },
-  { value: 20000, text: '25K' },
+  { value: 25000, text: '25K' },
   { value: 30000, text: '30K' },
   { value: 35000, text: '35K' },
   { value: 40000, text: '40K' },

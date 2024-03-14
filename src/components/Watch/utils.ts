@@ -7,6 +7,9 @@ export const DEFAULT_TIME_BASE = 10800
 export type DistanceTime = [number, number]
 
 export const DISTANCE_OPTION_LIST = [
+  { value: 400, text: '400m' },
+  { value: 800, text: '800m' },
+  { value: 1000, text: '1K' },
   { value: 5000, text: '5K' },
   { value: 10000, text: '10K' },
   { value: 15000, text: '15K' },

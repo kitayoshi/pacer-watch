@@ -137,7 +137,7 @@ function CadenceWatch(props: CadenceWatchProps) {
   // cadence
   const [rotateCadence, setRotateCadence] = useState<number | null>(null)
   const [showCadenceModal, setShowCadenceModal] = useState(false)
-  const [disatanceModalSelected, setDisatanceModalSelected] = useState(false)
+  const [cadenceModalSelected, setCadenceModalSelected] = useState(false)
   const onCadenceRotateStart = useCallback(() => {
     setShowCadenceModal(true)
   }, [])
@@ -145,7 +145,7 @@ function CadenceWatch(props: CadenceWatchProps) {
     changeCadence((cadence) => Math.floor(cadence))
     setRotateCadence(null)
     setShowCadenceModal(false)
-    setDisatanceModalSelected(false)
+    setCadenceModalSelected(false)
   }, [changeCadence])
   const onCadenceRotate = useCallback(
     (nextCadence: number, disabled: boolean) => {
@@ -154,20 +154,20 @@ function CadenceWatch(props: CadenceWatchProps) {
     },
     [changeCadence]
   )
-  const onDisntanceModalChange = useCallback(
+  const onCadenceModalChange = useCallback(
     (value: number | null) => {
       if (value === null) {
-        setDisatanceModalSelected(false)
+        setCadenceModalSelected(false)
         return
       }
-      setDisatanceModalSelected(true)
+      setCadenceModalSelected(true)
       changeCadence(value)
     },
     [changeCadence]
   )
   const cadenceKnobDisabled = useMemo(
-    () => lock === 'cadence' || disatanceModalSelected,
-    [lock, disatanceModalSelected]
+    () => lock === 'cadence' || cadenceModalSelected,
+    [lock, cadenceModalSelected]
   )
 
   // pace
@@ -366,7 +366,7 @@ function CadenceWatch(props: CadenceWatchProps) {
         nearValue={rotateCadence}
         optionList={CADENCE_OPTION_LIST}
         isOpen={showCadenceModal}
-        onSelect={onDisntanceModalChange}
+        onSelect={onCadenceModalChange}
       />
 
       <SelectModal

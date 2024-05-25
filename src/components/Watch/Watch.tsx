@@ -135,7 +135,7 @@ function Watch(props: WatchProps) {
   // distance
   const [rotateDistance, setRotateDistance] = useState<number | null>(null)
   const [showDistanceModal, setShowDistanceModal] = useState(false)
-  const [disatanceModalSelected, setDisatanceModalSelected] = useState(false)
+  const [distanceModalSelected, setDistanceModalSelected] = useState(false)
   const onDistanceRotateStart = useCallback(() => {
     setShowDistanceModal(true)
   }, [])
@@ -143,7 +143,7 @@ function Watch(props: WatchProps) {
     changeDistance((distance) => Math.floor(distance))
     setRotateDistance(null)
     setShowDistanceModal(false)
-    setDisatanceModalSelected(false)
+    setDistanceModalSelected(false)
   }, [changeDistance])
   const onDistanceRotate = useCallback(
     (nextDistance: number, disabled: boolean) => {
@@ -152,20 +152,20 @@ function Watch(props: WatchProps) {
     },
     [changeDistance]
   )
-  const onDisntanceModalChange = useCallback(
+  const onDistanceModalChange = useCallback(
     (value: number | null) => {
       if (value === null) {
-        setDisatanceModalSelected(false)
+        setDistanceModalSelected(false)
         return
       }
-      setDisatanceModalSelected(true)
+      setDistanceModalSelected(true)
       changeDistance(value)
     },
     [changeDistance]
   )
   const distanceKnobDisabled = useMemo(
-    () => lock === 'distance' || disatanceModalSelected,
-    [lock, disatanceModalSelected]
+    () => lock === 'distance' || distanceModalSelected,
+    [lock, distanceModalSelected]
   )
 
   // pace
@@ -364,7 +364,7 @@ function Watch(props: WatchProps) {
         nearValue={rotateDistance}
         optionList={DISTANCE_OPTION_LIST}
         isOpen={showDistanceModal}
-        onSelect={onDisntanceModalChange}
+        onSelect={onDistanceModalChange}
       />
 
       <SelectModal

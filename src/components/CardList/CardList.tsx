@@ -8,6 +8,7 @@ import Watch from '@/components/Watch'
 import CadenceWatch from '@/components/Watch/CadenceWatch'
 import LapTable from '@/components/LapTable'
 import LogCard from '@/components/LogCard'
+import BmiWatch from '@/components/Watch/BmiWatch'
 import { Changer, History } from '@/utils/type'
 
 import {
@@ -37,14 +38,20 @@ type NumberListChanger = Changer<[number, number]>
 type WatchLock = 'distance' | 'pace' | 'time'
 type CadenceWatchLock = 'cadence' | 'pace' | 'stride'
 
-type CardType = 'pace' | 'cadence' | 'lap' | 'log'
+type CardType = 'pace' | 'cadence' | 'lap' | 'log' | 'bmi'
+
+const buttonList: { type: CardType; label: string }[] = [
+  { type: 'pace', label: 'PACE' },
+  { type: 'cadence', label: 'CADENCE' },
+  { type: 'lap', label: 'LAP' },
+  { type: 'log', label: 'LOG' },
+  { type: 'bmi', label: 'BMI' },
+]
 
 function CardList(props: CardListProps) {
   const { className } = props
 
-  const [showPaceWatch, setShowPaceWatch] = useState(true)
-  const [showCadenceWatch, setShowCadenceWatch] = useState(false)
-  const [showLapTable, setShowLapTable] = useState(false)
+  const [showCardList, setShowCardList] = useState<CardType[]>(['pace'])
 
   const [watchLockHistoryList, setWatchLockHistoryList] = useState<
     [History<WatchLock>, History<CadenceWatchLock>]
@@ -240,60 +247,20 @@ function CardList(props: CardListProps) {
     [watchLockHistoryList]
   )
 
-  const [showLogCard, setShowLogCard] = useState(false)
-
   const toogleWatch = useCallback(
     (cardType: CardType) => {
-      if (cardType === 'pace') {
-        if (
-          showPaceWatch &&
-          !showCadenceWatch &&
-          !showLapTable &&
-          !showLogCard
-        ) {
-          return
-        }
-        setShowPaceWatch((current) => !current)
+      if (showCardList.includes(cardType) && showCardList.length === 1) {
         return
       }
-      if (cardType === 'cadence') {
-        if (
-          !showPaceWatch &&
-          showCadenceWatch &&
-          !showLapTable &&
-          !showLogCard
-        ) {
-          return
-        }
-        setShowCadenceWatch((current) => !current)
+      if (showCardList.includes(cardType)) {
+        setShowCardList((current) =>
+          current.filter((type) => type !== cardType)
+        )
         return
       }
-      if (cardType === 'lap') {
-        if (
-          !showPaceWatch &&
-          !showCadenceWatch &&
-          showLapTable &&
-          !showLogCard
-        ) {
-          return
-        }
-        setShowLapTable((current) => !current)
-        return
-      }
-      if (cardType === 'log') {
-        if (
-          !showPaceWatch &&
-          !showCadenceWatch &&
-          showLapTable &&
-          !showLogCard
-        ) {
-          return
-        }
-        setShowLogCard((current) => !current)
-        return
-      }
+      setShowCardList((current) => [...current, cardType])
     },
-    [showPaceWatch, showCadenceWatch, showLapTable, showLogCard]
+    [showCardList]
   )
 
   const onLogSelect = useCallback((activity: Activity) => {
@@ -335,7 +302,7 @@ function CardList(props: CardListProps) {
           'sm:flex-row'
         )}
       >
-        {showPaceWatch && (
+        {showCardList.includes('pace') && (
           <Watch
             distanceTime={distanceTime}
             setDistanceTime={setDistanceTime}
@@ -344,7 +311,7 @@ function CardList(props: CardListProps) {
             unlock={unlockWatchLock}
           />
         )}
-        {showCadenceWatch && (
+        {showCardList.includes('cadence') && (
           <CadenceWatch
             cadenceStride={cadenceStride}
             setCadenceStride={setCadenceStride}
@@ -353,52 +320,26 @@ function CardList(props: CardListProps) {
             unlock={unlockCadenceWatchLock}
           />
         )}
-        {showLapTable && <LapTable pace={pace} />}
+        {showCardList.includes('lap') && <LapTable pace={pace} />}
 
-        <LogCard show={showLogCard} onSelect={onLogSelect} />
+        <LogCard show={showCardList.includes('log')} onSelect={onLogSelect} />
+
+        {showCardList.includes('bmi') && <BmiWatch />}
       </div>
-      <div className={cx('flex', 'gap-2')}>
-        <Button
-          className={cx('border-small')}
-          variant={showPaceWatch ? 'flat' : 'light'}
-          radius="full"
-          onClick={() => {
-            toogleWatch('pace')
-          }}
-        >
-          PACE
-        </Button>
-        <Button
-          className={cx('border-small')}
-          variant={showCadenceWatch ? 'flat' : 'light'}
-          radius="full"
-          onClick={() => {
-            toogleWatch('cadence')
-          }}
-        >
-          CADENCE
-        </Button>
-        <Button
-          className={cx('border-small')}
-          variant={showLapTable ? 'flat' : 'light'}
-          radius="full"
-          onClick={() => {
-            toogleWatch('lap')
-          }}
-        >
-          LAP
-        </Button>
-
-        <Button
-          className={cx('border-small')}
-          variant={showLogCard ? 'flat' : 'light'}
-          radius="full"
-          onClick={() => {
-            toogleWatch('log')
-          }}
-        >
-          LOG
-        </Button>
+      <div className={cx('flex', 'flex-wrap', 'justify-center', 'gap-2')}>
+        {buttonList.map(({ type, label }) => (
+          <Button
+            key={type}
+            className={cx('border-small')}
+            variant={showCardList.includes(type) ? 'flat' : 'light'}
+            radius="full"
+            onClick={() => {
+              toogleWatch(type)
+            }}
+          >
+            {label}
+          </Button>
+        ))}
       </div>
     </div>
   )

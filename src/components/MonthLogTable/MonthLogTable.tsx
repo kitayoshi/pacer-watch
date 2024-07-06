@@ -184,9 +184,11 @@ function MonthLogTable(props: MonthLogTableProps) {
   const { className, year, activityList, onSelect } = props
 
   const getMonthDistanceText = useCallback(
-    (month: number) => {
+    (year: number, month: number) => {
       const monthActivityList = activityList.filter((a) => {
-        return getMonth(parseISO(a.startDate)) === month
+        const yearMatch = getYear(parseISO(a.startDate)) === year
+        const monthMatch = getMonth(parseISO(a.startDate)) === month
+        return yearMatch && monthMatch
       })
       const distance = monthActivityList.reduce(
         (acc, cur) => acc + cur.distance,
@@ -254,7 +256,7 @@ function MonthLogTable(props: MonthLogTableProps) {
                         {format(new Date(year, month), 'MMM')}
                       </div>
                       <div className={styles.monthCount}>
-                        {getMonthDistanceText(month)}
+                        {getMonthDistanceText(year, month)}
                       </div>
                     </div>
                     <div className={styles.weekListContainer}>

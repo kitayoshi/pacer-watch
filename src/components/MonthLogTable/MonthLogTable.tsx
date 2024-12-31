@@ -373,7 +373,7 @@ function MonthLogTable(props: MonthLogTableProps) {
                 {athelete.firstname} {athelete.lastname}
               </strong>
               <div className={styles.atheleteFooter}>
-                {'Data from Starva by '}
+                {'Data from Strava drawn by'}
                 <span>{'pacer.watch'}</span>
               </div>
             </div>

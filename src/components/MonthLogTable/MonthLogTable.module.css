@@ -13,6 +13,7 @@
 .columnMonthList {
   display: flex;
   justify-content: space-between;
+  gap: 10px;
   width: 100%;
 }
 
@@ -134,7 +135,7 @@
 }
 
 .bestDate {
-  color: #ddd;
+  color: #333;
   margin-left: auto;
   margin-right: 12px;
 }
@@ -150,16 +151,25 @@
 }
 
 .athleteName {
-  align-items: flex-end;
+  font-size: 13px;
   display: flex;
   flex-direction: column;
 }
 
 .atheleteFooter {
   color: #999;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .atheleteFooter span {
   text-decoration: underline;
+}
+
+.toolButton {
+  color: #999;
+}
+
+.icon {
+  height: 20px;
+  width: 20px;
 }

@@ -1,6 +1,8 @@
 import { useCallback, useMemo } from 'react'
 import cx from 'classnames'
 import { quantileSeq } from 'mathjs'
+import { toPng } from 'html-to-image'
+import { Button } from '@nextui-org/button'
 import {
   format,
   getMonth,
@@ -16,10 +18,9 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@nextui-org/popover'
 import { Link } from '@nextui-org/link'
 import { Divider } from '@nextui-org/divider'
-import { Avatar } from '@nextui-org/avatar'
 import { StravaBestEffortCamel } from '@/utils/strava'
-import Image from 'next/image'
 
+import ShareImage from '@material-design-icons/svg/filled/share.svg'
 import { Activity, Athlete } from '@/utils/log'
 import { formatDistance, formatPace, formatTime } from '@/utils/unit'
 
@@ -367,11 +368,6 @@ function MonthLogTable(props: MonthLogTableProps) {
         <div>
           <Divider className="my-4" />
           <div className={styles.atheleteContainer}>
-            <Avatar
-              src={athelete.profile}
-              name={athelete.username}
-              className={styles.atheleteProfile}
-            />
             <div>
               <strong className={styles.athleteName}>
                 {athelete.firstname} {athelete.lastname}
@@ -381,6 +377,25 @@ function MonthLogTable(props: MonthLogTableProps) {
                 <span>{'pacer.watch'}</span>
               </div>
             </div>
+            <Button
+              className={styles.toolButton}
+              isIconOnly
+              size="sm"
+              onClick={async () => {
+                const cardElement = document.getElementById('log-card')
+                if (!cardElement) return
+                const dataUrl = await toPng(cardElement)
+                const a = document.createElement('a')
+                a.href = dataUrl
+                const dateString = format(new Date(), 'yyyy-MM-dd')
+                a.download = `pacer-watch-running-log-${dateString}.png`
+                a.click()
+              }}
+              variant="light"
+              radius="full"
+            >
+              <ShareImage className={styles.icon} fill="currentColor" />
+            </Button>
           </div>
         </div>
       )}

@@ -1,9 +1,13 @@
 .container {
+  background: #fff;
+  max-width: calc(390px + 12px + 12px);
+  padding: 24px;
+}
+
+.card {
   display: flex;
   flex-direction: column;
-  max-width: calc(390px - 12px - 12px);
   padding: 16px;
-  width: 100%;
 }
 
 .navbar {

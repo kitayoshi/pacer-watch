@@ -304,6 +304,7 @@ function CardList(props: CardListProps) {
       >
         {showCardList.includes('pace') && (
           <Watch
+            className={styles.card}
             distanceTime={distanceTime}
             setDistanceTime={setDistanceTime}
             lock={watchLock}
@@ -313,6 +314,7 @@ function CardList(props: CardListProps) {
         )}
         {showCardList.includes('cadence') && (
           <CadenceWatch
+            className={styles.card}
             cadenceStride={cadenceStride}
             setCadenceStride={setCadenceStride}
             lock={cadenceWatchLock}
@@ -320,11 +322,17 @@ function CardList(props: CardListProps) {
             unlock={unlockCadenceWatchLock}
           />
         )}
-        {showCardList.includes('lap') && <LapTable pace={pace} />}
+        {showCardList.includes('lap') && (
+          <LapTable className={styles.card} pace={pace} />
+        )}
 
-        <LogCard show={showCardList.includes('log')} onSelect={onLogSelect} />
+        <LogCard
+          className={styles.logCard}
+          show={showCardList.includes('log')}
+          onSelect={onLogSelect}
+        />
 
-        {showCardList.includes('bmi') && <BmiWatch />}
+        {showCardList.includes('bmi') && <BmiWatch className={styles.card} />}
       </div>
       <div className={cx('flex', 'flex-wrap', 'justify-center', 'gap-2')}>
         {buttonList.map(({ type, label }) => (

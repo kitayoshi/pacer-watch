@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { getYear, parseISO } from 'date-fns'
 import cx from 'classnames'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { toPng } from 'html-to-image'
 import { Card } from '@nextui-org/card'
 import { Select, SelectItem } from '@nextui-org/select'
 import { Button } from '@nextui-org/button'
@@ -12,7 +11,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@nextui-org/popover'
 import { Spinner } from '@nextui-org/spinner'
 
 import SyncImage from '@material-design-icons/svg/filled/sync.svg'
-import ShareImage from '@material-design-icons/svg/filled/share.svg'
 
 import ConnectStravaButton from '@/components/ConnectStravaButton'
 import MonthLogTable from '@/components/MonthLogTable'
@@ -138,118 +136,102 @@ function LogCard(props: LogCardProps) {
   if (!show) return null
 
   return (
-    <Card id="log-card" className={cx(styles.container, className)}>
-      <div className={styles.navbar}>
-        <div className={styles.navbarHeader}>TRAINING LOG</div>
-      </div>
-      <div className={styles.toolButtonList}>
-        {stravaAccessToken && (
-          <Button
-            className={styles.toolButton}
-            isIconOnly
-            size="sm"
-            onClick={() => {
-              if (!stravaAthleteId || !stravaAccessToken) return
-              fetchData(stravaAthleteId, stravaAccessToken, true)
-            }}
-            variant="light"
-            radius="full"
-            disabled={fetching}
-          >
-            <SyncImage className={styles.icon} fill="currentColor" />
-          </Button>
-        )}
-        {stravaAccessToken && (
-          <Button
-            className={styles.toolButton}
-            isIconOnly
-            size="sm"
-            onClick={async () => {
-              const cardElement = document.getElementById('log-card')
-              if (!cardElement) return
-              const dataUrl = await toPng(cardElement)
-              const a = document.createElement('a')
-              a.href = dataUrl
-              a.download = 'log-card.png'
-              a.click()
-            }}
-            variant="light"
-            radius="full"
-            disabled={fetching}
-          >
-            <ShareImage className={styles.icon} fill="currentColor" />
-          </Button>
-        )}
-      </div>
-      <div className={styles.yearStat}>
-        <Select
-          className={styles.yearSelect}
-          label=""
-          aria-label="year"
-          variant="flat"
-          labelPlacement="outside"
-          radius="full"
-          size="sm"
-          selectedKeys={[String(year)]}
-          onSelectionChange={(keys) => setYear(Number(Array.from(keys)[0]))}
-        >
-          {yearList.map((year) => (
-            <SelectItem key={String(year)} textValue={String(year)}>
-              {year}
-            </SelectItem>
-          ))}
-        </Select>
-        <div
-          className={styles.yearTotal}
-        >{`${totalDistanceText} / ${currentYearActivityList.length}runs`}</div>
-      </div>
-      <div className={styles.content}>
-        <MonthLogTable
-          className={styles.monthLogTable}
-          year={year}
-          activityList={activityList}
-          onSelect={async (activity) => {
-            onSelect?.(activity)
-
-            if (activity.resourceState === 3) return
-            if (!stravaAthleteId || !stravaAccessToken) return
-            const url = new URL('/api/strava-activity', window.location.origin)
-            url.searchParams.set('id', String(activity.id))
-            const responseData: Activity = await fetch(url, {
-              headers: {
-                ['x-strava-athlete-id']: String(stravaAthleteId),
-                ['x-strava-access-token']: stravaAccessToken,
-              },
-            }).then((res) => res.json())
-            setActivityList((prev) =>
-              prev.map((a) => (a.id === activity.id ? responseData : a))
-            )
-          }}
-          athelete={stravaAthlete}
-        />
-        {fetching && (
-          <div className={styles.buttonContainer}>
-            <Spinner size="sm" color="default" />
-          </div>
-        )}
-        {stravaAccessToken === null && (
-          <div className={styles.buttonContainer}>
-            <Popover
-              isOpen={Boolean(stravaError)}
-              onOpenChange={() => setStravaError(null)}
-              triggerScaleOnOpen={false}
+    <div id="log-card" className={cx(styles.container, className)}>
+      <Card className={styles.card}>
+        <div className={styles.navbar}>
+          <div className={styles.navbarHeader}>RUNNING LOG</div>
+        </div>
+        <div className={styles.toolButtonList}>
+          {stravaAccessToken && (
+            <Button
+              className={styles.toolButton}
+              isIconOnly
+              size="sm"
+              onClick={() => {
+                if (!stravaAthleteId || !stravaAccessToken) return
+                fetchData(stravaAthleteId, stravaAccessToken, true)
+              }}
+              variant="light"
+              radius="full"
+              disabled={fetching}
             >
-              <PopoverTrigger>
-                <div>
-                  <ConnectStravaButton />
-                </div>
-              </PopoverTrigger>
-              <PopoverContent>{stravaError}</PopoverContent>
-            </Popover>
-          </div>
-        )}
-      </div>
-    </Card>
+              <SyncImage className={styles.icon} fill="currentColor" />
+            </Button>
+          )}
+        </div>
+        <div className={styles.yearStat}>
+          <Select
+            className={styles.yearSelect}
+            label=""
+            aria-label="year"
+            variant="flat"
+            labelPlacement="outside"
+            radius="full"
+            size="sm"
+            selectedKeys={[String(year)]}
+            onSelectionChange={(keys) => setYear(Number(Array.from(keys)[0]))}
+          >
+            {yearList.map((year) => (
+              <SelectItem key={String(year)} textValue={String(year)}>
+                {year}
+              </SelectItem>
+            ))}
+          </Select>
+          <div
+            className={styles.yearTotal}
+          >{`${totalDistanceText} / ${currentYearActivityList.length}runs`}</div>
+        </div>
+        <div className={styles.content}>
+          <MonthLogTable
+            className={styles.monthLogTable}
+            year={year}
+            activityList={activityList}
+            onSelect={async (activity) => {
+              onSelect?.(activity)
+
+              if (activity.resourceState === 3) return
+              if (!stravaAthleteId || !stravaAccessToken) return
+              const url = new URL(
+                '/api/strava-activity',
+                window.location.origin
+              )
+              url.searchParams.set('id', String(activity.id))
+              const responseData: Activity = await fetch(url, {
+                headers: {
+                  ['x-strava-athlete-id']: String(stravaAthleteId),
+                  ['x-strava-access-token']: stravaAccessToken,
+                },
+              }).then((res) => res.json())
+              setActivityList((prev) =>
+                prev.map((a) => (a.id === activity.id ? responseData : a))
+              )
+            }}
+            athelete={stravaAthlete}
+          />
+          {fetching && (
+            <div className={styles.buttonContainer}>
+              <Spinner size="sm" color="default" />
+            </div>
+          )}
+          {stravaAccessToken === null && (
+            <div className={styles.buttonContainer}>
+              <Popover
+                isOpen={Boolean(stravaError)}
+                onOpenChange={() => setStravaError(null)}
+                triggerScaleOnOpen={false}
+              >
+                <PopoverTrigger>
+                  <div>
+                    <ConnectStravaButton />
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent>{stravaError}</PopoverContent>
+              </Popover>
+            </div>
+          )}
+        </div>
+      </Card>
+    </div>
   )
 }
 

@@ -4,7 +4,8 @@
   flex-direction: column;
   min-height: 100vh;
   min-height: 100svh;
-  padding: 12px;
+  padding: 24px;
+  padding-top: 0;
   min-width: 100vw;
 }
 

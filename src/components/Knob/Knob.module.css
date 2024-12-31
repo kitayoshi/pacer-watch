@@ -4,11 +4,11 @@
 .button {
   cursor: grab;
   border-radius: 50%;
-  height: 100px;
+  height: 90px;
   /* https://github.com/jquery-archive/PEP/issues/346#issuecomment-402151419 */
   touch-action: none;
   position: relative;
-  width: 100px;
+  width: 90px;
 }
 
 .buttonDot {

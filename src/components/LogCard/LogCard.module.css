@@ -17,11 +17,20 @@
   position: relative;
 }
 
-.toolButton {
-  color: #999;
+.toolButtonList {
+  display: flex;
   position: absolute;
   right: 12px;
   top: 18px;
+}
+
+.toolButton {
+  color: #999;
+}
+
+.icon {
+  height: 20px;
+  width: 20px;
 }
 
 .yearStat {

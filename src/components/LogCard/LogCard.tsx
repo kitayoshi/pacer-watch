@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { getYear, parseISO } from 'date-fns'
 import cx from 'classnames'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { toPng } from 'html-to-image'
 import { Card } from '@nextui-org/card'
 import { Select, SelectItem } from '@nextui-org/select'
 import { Button } from '@nextui-org/button'
@@ -11,11 +12,12 @@ import { Popover, PopoverContent, PopoverTrigger } from '@nextui-org/popover'
 import { Spinner } from '@nextui-org/spinner'
 
 import SyncImage from '@material-design-icons/svg/filled/sync.svg'
+import ShareImage from '@material-design-icons/svg/filled/share.svg'
 
 import ConnectStravaButton from '@/components/ConnectStravaButton'
 import MonthLogTable from '@/components/MonthLogTable'
 
-import { Activity } from '@/utils/log'
+import { Activity, Athlete } from '@/utils/log'
 import { formatDistance } from '@/utils/unit'
 import { getYearList } from '@/utils/time'
 
@@ -59,6 +61,27 @@ function LogCard(props: LogCardProps) {
     const storageToken = localStorage.getItem('PACER_WATCH::stravaAccessToken')
     setStravaAccessToken(storageToken)
   }, [router, searchParams])
+
+  const [stravaAthlete, setStravaAthlete] = useState<Athlete | null>(null)
+  const fetchAthlete = useCallback(async (stravaAccessToken: string) => {
+    if (!stravaAccessToken) return
+    const athlete: Athlete = await fetch('/api/strava-athlete', {
+      headers: {
+        ['x-strava-access-token']: stravaAccessToken,
+      },
+    })
+      .then((res) => res.json())
+      .catch(() => {
+        localStorage.removeItem('PACER_WATCH::stravaAccessToken')
+        setStravaAccessToken(null)
+        return null
+      })
+    setStravaAthlete(athlete)
+  }, [])
+  useEffect(() => {
+    if (!stravaAccessToken) return
+    fetchAthlete(stravaAccessToken)
+  }, [fetchAthlete, stravaAccessToken])
 
   const [fetching, setFetching] = useState(false)
   const [activityList, setActivityList] = useState<Activity[]>([])
@@ -115,26 +138,49 @@ function LogCard(props: LogCardProps) {
   if (!show) return null
 
   return (
-    <Card className={cx(styles.container, className)}>
+    <Card id="log-card" className={cx(styles.container, className)}>
       <div className={styles.navbar}>
         <div className={styles.navbarHeader}>TRAINING LOG</div>
       </div>
-      {stravaAccessToken && (
-        <Button
-          className={styles.toolButton}
-          isIconOnly
-          size="sm"
-          onClick={() => {
-            if (!stravaAthleteId || !stravaAccessToken) return
-            fetchData(stravaAthleteId, stravaAccessToken, true)
-          }}
-          variant="light"
-          radius="full"
-          disabled={fetching}
-        >
-          <SyncImage className={styles.icon} fill="currentColor" />
-        </Button>
-      )}
+      <div className={styles.toolButtonList}>
+        {stravaAccessToken && (
+          <Button
+            className={styles.toolButton}
+            isIconOnly
+            size="sm"
+            onClick={() => {
+              if (!stravaAthleteId || !stravaAccessToken) return
+              fetchData(stravaAthleteId, stravaAccessToken, true)
+            }}
+            variant="light"
+            radius="full"
+            disabled={fetching}
+          >
+            <SyncImage className={styles.icon} fill="currentColor" />
+          </Button>
+        )}
+        {stravaAccessToken && (
+          <Button
+            className={styles.toolButton}
+            isIconOnly
+            size="sm"
+            onClick={async () => {
+              const cardElement = document.getElementById('log-card')
+              if (!cardElement) return
+              const dataUrl = await toPng(cardElement)
+              const a = document.createElement('a')
+              a.href = dataUrl
+              a.download = 'log-card.png'
+              a.click()
+            }}
+            variant="light"
+            radius="full"
+            disabled={fetching}
+          >
+            <ShareImage className={styles.icon} fill="currentColor" />
+          </Button>
+        )}
+      </div>
       <div className={styles.yearStat}>
         <Select
           className={styles.yearSelect}
@@ -179,6 +225,7 @@ function LogCard(props: LogCardProps) {
               prev.map((a) => (a.id === activity.id ? responseData : a))
             )
           }}
+          athelete={stravaAthlete}
         />
         {fetching && (
           <div className={styles.buttonContainer}>

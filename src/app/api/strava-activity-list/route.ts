@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     accessToken,
     perPage: 200,
     before: getUnixTime(new Date()),
-    after: getUnixTime(new Date(2023, 0, 1, 0, 0, 0)),
+    after: getUnixTime(new Date(2024, 0, 1, 0, 0, 0)),
   })
 
   const activityList = trimStravaActivityList(stravaActivityList)

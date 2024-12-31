@@ -1,4 +1,5 @@
 import {
+  StravaAthlete,
   StravaActivity,
   StravaResourceState,
   StravaBestEffortCamel,
@@ -6,6 +7,7 @@ import {
 
 export type Activity = {
   id: number
+  name: string
   resourceState: StravaResourceState
   startDate: string
   startDateLocal: string
@@ -15,6 +17,15 @@ export type Activity = {
   elapsedTime: number
   averageCadence: number
   bestEfforts?: StravaBestEffortCamel[]
+  workoutType: number
+}
+
+export type Athlete = {
+  id: number
+  username: StravaAthlete['username']
+  firstname: string
+  lastname: string
+  profile: StravaAthlete['profile']
 }
 
 export function trimStravaActivityList(
@@ -23,6 +34,7 @@ export function trimStravaActivityList(
   return stravaActivityList.map((stravaActivity) => {
     return {
       id: stravaActivity.id,
+      name: stravaActivity.name,
       resourceState: stravaActivity.resource_state,
       startDate: stravaActivity.start_date,
       startDateLocal: stravaActivity.start_date_local,
@@ -31,6 +43,7 @@ export function trimStravaActivityList(
       movingTime: stravaActivity.moving_time,
       elapsedTime: stravaActivity.elapsed_time,
       averageCadence: stravaActivity.average_cadence,
+      workoutType: stravaActivity.workout_type,
     }
   })
 }

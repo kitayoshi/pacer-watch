@@ -49,9 +49,12 @@
 }
 
 .dayBlock {
+  align-items: center;
   background: #eee;
   border-radius: 2px;
+  display: flex;
   height: 11px;
+  justify-content: center;
   width: 11px;
   transition: all 0.2s;
 }
@@ -89,6 +92,12 @@
   border: 2px solid #333;
 }
 
+.dayBlockHasRace {
+  /* border: 2px solid #333; */
+  color: #fff;
+  font-size: 8px;
+}
+
 .popoverContainter {
   align-items: center;
   color: #333;
@@ -120,8 +129,37 @@
   color: #333;
 }
 
+.bestName {
+  /* font-size: 11px; */
+}
+
 .bestDate {
   color: #ddd;
   margin-left: auto;
   margin-right: 12px;
+}
+
+.atheleteContainer {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.atheleteProfile {
+  margin-right: 12px;
+}
+
+.athleteName {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+}
+
+.atheleteFooter {
+  color: #999;
+  font-size: 12px;
+}
+
+.atheleteFooter span {
+  text-decoration: underline;
 }

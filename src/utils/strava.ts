@@ -1,5 +1,9 @@
-type StravaAthlete = {
+export type StravaAthlete = {
   id: number
+  username: string
+  firstname: string
+  lastname: string
+  profile: string
 }
 
 export type StravaTokenPayload = {

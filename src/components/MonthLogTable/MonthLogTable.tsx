@@ -16,12 +16,14 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@nextui-org/popover'
 import { Link } from '@nextui-org/link'
 import { Divider } from '@nextui-org/divider'
+import { Avatar } from '@nextui-org/avatar'
+import { StravaBestEffortCamel } from '@/utils/strava'
+import Image from 'next/image'
 
-import { Activity } from '@/utils/log'
+import { Activity, Athlete } from '@/utils/log'
 import { formatDistance, formatPace, formatTime } from '@/utils/unit'
 
 import styles from './MonthLogTable.module.css'
-import { StravaBestEffortCamel } from '@/utils/strava'
 
 type BestEffort = {
   name: string
@@ -108,6 +110,10 @@ function DayBlock(props: DayBlockProps) {
     return hasBestEffort
   }, [dayActivityList, bestEffortList])
 
+  const hasRace = useMemo(() => {
+    return dayActivityList.some((a) => a.workoutType === 1)
+  }, [dayActivityList])
+
   return (
     <Popover>
       <PopoverTrigger>
@@ -121,6 +127,7 @@ function DayBlock(props: DayBlockProps) {
             [styles.dayBlock50]: showDayBlock && distancePreset === 50,
             [styles.dayBlock25]: showDayBlock && distancePreset === 25,
             [styles.dayBlockHasBestEffort]: showDayBlock && hasBestEffort,
+            [styles.dayBlockHasRace]: showDayBlock && hasRace,
           })}
           date-year={year}
           date-month={month}
@@ -128,7 +135,9 @@ function DayBlock(props: DayBlockProps) {
           date-week={week}
           data-date-value={distance}
           data-date-key={dateKey}
-        ></div>
+        >
+          {showDayBlock && hasRace && '★'}
+        </div>
       </PopoverTrigger>
       <PopoverContent>
         <div className={styles.popoverContainter}>
@@ -169,6 +178,7 @@ type MonthLogTableProps = {
   className?: string
   year: number // yyyy
   activityList: Activity[]
+  athelete?: Athlete | null
   onSelect?: (activity: Activity) => void
 }
 
@@ -181,7 +191,7 @@ const monthList = [
 ]
 
 function MonthLogTable(props: MonthLogTableProps) {
-  const { className, year, activityList, onSelect } = props
+  const { className, year, activityList, athelete, onSelect } = props
 
   const getMonthDistanceText = useCallback(
     (year: number, month: number) => {
@@ -230,6 +240,13 @@ function MonthLogTable(props: MonthLogTableProps) {
       (bestEffort) => bestEffort.distance > 0
     ) as (StravaBestEffortCamel & BestEffort)[]
   }, [activityList])
+
+  const raceList = useMemo(() => {
+    return activityList
+      .filter((a) => a.workoutType === 1)
+      .filter((a) => a.startDate.startsWith(`${year}-`))
+      .toReversed()
+  }, [year, activityList])
 
   return (
     <div className={cx(styles.container, className)}>
@@ -316,6 +333,55 @@ function MonthLogTable(props: MonthLogTableProps) {
               </div>
             )
           })}
+        </div>
+      )}
+      {raceList.length > 0 && (
+        <div>
+          <Divider className="my-4" />
+          {raceList.map((activity) => {
+            return (
+              <div
+                key={activity.id}
+                className={styles.bestListItem}
+                onClick={() => {
+                  onSelect?.(activity)
+                }}
+              >
+                <div className={styles.bestName}>{activity.name}</div>
+                <div className={styles.bestDate}>
+                  {activity.startDateLocal
+                    .split('T')[0]
+                    .split('-')
+                    .slice(1)
+                    .join('-')}
+                </div>
+                <div>
+                  <strong>{formatTime(activity.elapsedTime)}</strong>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+      {athelete && (
+        <div>
+          <Divider className="my-4" />
+          <div className={styles.atheleteContainer}>
+            <Avatar
+              src={athelete.profile}
+              name={athelete.username}
+              className={styles.atheleteProfile}
+            />
+            <div>
+              <strong className={styles.athleteName}>
+                {athelete.firstname} {athelete.lastname}
+              </strong>
+              <div className={styles.atheleteFooter}>
+                {'Data from Starva by '}
+                <span>{'pacer.watch'}</span>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -115,7 +115,7 @@ function LogCard(props: LogCardProps) {
     fetchData(stravaAthleteId, stravaAccessToken)
   }, [fetchData, stravaAthleteId, stravaAccessToken])
 
-  const [year, setYear] = useState(2024)
+  const [year, setYear] = useState(2025)
   const yearList = useMemo(() => {
     const currentYear = new Date().getFullYear()
     return getYearList(currentYear, 2)

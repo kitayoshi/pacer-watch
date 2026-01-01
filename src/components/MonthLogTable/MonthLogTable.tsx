@@ -34,8 +34,8 @@ type BestEffort = {
 }
 
 const initialBestEffortList: BestEffort[] = [
-  ['5k', '5K'],
-  ['10k', '10K'],
+  ['5K', '5K'],
+  ['10K', '10K'],
   ['Half-Marathon', 'HALF'],
   ['Marathon', 'FULL'],
 ].map(([name, displayName]) => ({
@@ -325,7 +325,11 @@ function MonthLogTable(props: MonthLogTableProps) {
               >
                 <div>{bestEffort.displayName}</div>
                 <div className={styles.bestDate}>
-                  {bestEffort.startDateLocal.split('T')[0]}
+                  {bestEffort.startDateLocal
+                    .split('T')[0]
+                    .split('-')
+                    .slice(1)
+                    .join('-')}
                 </div>
                 <div>
                   <strong>{formatTime(bestEffort.elapsedTime)}</strong> @{' '}
